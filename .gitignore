@@ -1,0 +1,50 @@
+# =========================
+# IntelliJ IDEA
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# =========================
+# Maven
+# =========================
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# No ignoramos .mvn/wrapper/maven-wrapper.properties para que ambos usen la misma versión de Maven
+
+# =========================
+# Java & Compilados
+# =========================
+*.class
+*.log
+*.jar
+*.war
+*.zip
+*.tar.gz
+hs_err_pid*
+replay_pid*
+
+# =========================
+# Base de Datos SQLite
+# =========================
+# Ignoramos los archivos de base de datos para que tú y tu compañero 
+# no se sobrescriban los datos de prueba al hacer push/pull.
+*.db
+*.sqlite
+*.sqlite3
+*backup*.db
+
+# =========================
+# Archivos del Sistema Operativo
+# =========================
+.DS_Store
+Thumbs.db
