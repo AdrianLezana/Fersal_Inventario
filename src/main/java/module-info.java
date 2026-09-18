@@ -6,6 +6,6 @@ module com.example.inventariofersal {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
 
-    opens com.example.inventariofersal to javafx.fxml;
-    exports com.example.inventariofersal;
+    opens cl.fersal.inventario to javafx.fxml;
+    exports cl.fersal.inventario;
 }
