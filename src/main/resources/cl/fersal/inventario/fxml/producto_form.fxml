@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<VBox spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.ProductoFormController" prefWidth="550.0">
+    <padding>
+        <Insets top="20.0" right="25.0" bottom="20.0" left="25.0"/>
+    </padding>
+
+    <Label text="Formulario de Producto" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <!-- Forzamos al GridPane a ocupar todo el ancho disponible -->
+    <GridPane hgap="15.0" vgap="15.0" maxWidth="Infinity">
+        <columnConstraints>
+            <ColumnConstraints minWidth="150.0" />
+            <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+
+        <Label text="Código Interno:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <!-- maxWidth="Infinity" obliga al TextField a rellenar la columna completa -->
+        <TextField fx:id="txtCodigo" promptText="Ej: 1501" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Nombre (*):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombre" promptText="Ej: Vidrio Incoloro 4mm" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Unidad (*):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbUnidad" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Plancha"/>
+                    <String fx:value="Tira"/>
+                    <String fx:value="Metro"/>
+                    <String fx:value="Unidad"/>
+                    <String fx:value="Kg"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+
+        <Label text="Dimensiones:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtDimensiones" promptText="Ej: 213x330 cm" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Ubicación:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtUbicacion" promptText="Ej: Bodega 1, Pasillo A" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Stock Disponible:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtStock" promptText="0.0" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Precio Costo:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCosto" promptText="0.0" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Precio Venta:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPrecio" promptText="0.0" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Label text="Precio Venta x Metro:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPrecioMetro" promptText="0.0 (Opcional)" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+        <Label text="Precio Trabajado (m):" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPrecioTrabajado" promptText="0.0 (Opcional)" prefHeight="30.0" maxWidth="Infinity" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
+
+    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#cerrarVentana" prefWidth="100.0" style="-fx-padding: 8px;"/>
+        <Button text="Guardar" onAction="#guardarProducto" defaultButton="true" prefWidth="100.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px;"/>
+    </HBox>
+</VBox>

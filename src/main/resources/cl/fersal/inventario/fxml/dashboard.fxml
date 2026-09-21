@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cl.fersal.inventario.controller.DashboardController"
+            prefHeight="600.0" prefWidth="900.0">
+
+    <!-- Panel Superior: Título y Usuario -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #2c3e50; -fx-padding: 15px;">
+            <Label text="Fersal - Panel de Inventario" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="lblUsuarioActual" text="Usuario: Admin" style="-fx-text-fill: white;" />
+            <Button text="Cerrar Sesión" onAction="#cerrarSesion" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+        </HBox>
+    </top>
+
+    <!-- Panel Central: Tabla de Productos -->
+    <center>
+        <VBox spacing="10.0" style="-fx-padding: 20px;">
+            <HBox spacing="10.0">
+                <TextField fx:id="txtBuscar" promptText="Buscar producto por nombre o código..." HBox.hgrow="ALWAYS" />
+                <Button text="Buscar" />
+            </HBox>
+
+            <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colCodigo" text="Código" prefWidth="60.0" />
+                    <TableColumn fx:id="colNombre" text="Nombre del Producto" prefWidth="180.0" />
+                    <TableColumn fx:id="colDimensiones" text="Dimensiones" prefWidth="100.0" />
+                    <TableColumn fx:id="colStock" text="Stock" prefWidth="60.0" />
+                    <TableColumn fx:id="colMedida" text="Medida" prefWidth="60.0" />
+                    <TableColumn fx:id="colCosto" text="Costo" prefWidth="80.0" />
+                    <TableColumn fx:id="colPrecio" text="Precio Venta" prefWidth="80.0" />
+                    <TableColumn fx:id="colPrecioMetro" text="P. Venta (m)" prefWidth="85.0" />
+                    <TableColumn fx:id="colPrecioTrabajado" text="P. Trabajado" prefWidth="85.0" />
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- Panel Derecho: Botones de Acción -->
+    <right>
+        <VBox spacing="15.0" style="-fx-padding: 20px; -fx-background-color: #ecf0f1;" prefWidth="200.0">
+            <Label text="Acciones" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+            <!-- Cambiamos MAX_VALUE por Infinity -->
+            <Button text="Nuevo Producto" maxWidth="Infinity" onAction="#abrirFormularioProducto" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+            <Button text="Ingresar Compra" maxWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+            <Button text="Nueva Orden Trabajo" maxWidth="Infinity" style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
+            <Region VBox.vgrow="ALWAYS" />
+            <Button text="Editar Seleccionado" maxWidth="Infinity" onAction="#editarSeleccionado"/>
+            <Button text="Eliminar Seleccionado" maxWidth="Infinity" onAction="#eliminarSeleccionado" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+        </VBox>
+    </right>
+
+</BorderPane>
