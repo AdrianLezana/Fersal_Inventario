@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.LoginController"
+      prefHeight="300.0" prefWidth="350.0">
+
+   <padding>
+      <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+   </padding>
+
+   <Label text="Inventario Fersal" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;" />
+
+   <Label text="Control de Acceso" style="-fx-font-size: 14px; -fx-text-fill: #666666;" />
+
+   <VBox spacing="5.0">
+      <TextField fx:id="txtUsername" promptText="Nombre de usuario" />
+      <PasswordField fx:id="txtPassword" promptText="Contraseña" />
+   </VBox>
+
+   <Label fx:id="lblMensaje" textFill="RED" wrapText="true" />
+
+   <!-- El defaultButton="true" permite que el usuario presione 'Enter' para iniciar sesión -->
+   <Button text="Ingresar" onAction="#iniciarSesion" defaultButton="true" prefWidth="270.0"
+           style="-fx-background-color: #0056b3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px;"/>
+</VBox>
