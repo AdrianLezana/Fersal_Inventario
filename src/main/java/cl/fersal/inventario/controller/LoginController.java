@@ -2,6 +2,7 @@ package cl.fersal.inventario.controller;
 
 import cl.fersal.inventario.dao.UsuarioDAO;
 import cl.fersal.inventario.model.Usuario;
+import cl.fersal.inventario.util.Actualizador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -49,5 +50,13 @@ public class LoginController {
             lblMensaje.setStyle("-fx-text-fill: red;");
             lblMensaje.setText("Usuario o contraseña incorrectos.");
         }
+    }
+
+// Importa el actualizador arriba: import cl.fersal.inventario.util.Actualizador;
+
+    @FXML
+    public void initialize() {
+        // Buscar actualizaciones en GitHub al abrir la app
+        Actualizador.verificarActualizaciones();
     }
 }

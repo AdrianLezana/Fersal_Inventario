@@ -1,5 +1,6 @@
 package cl.fersal.inventario.config;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -7,14 +8,27 @@ import java.sql.Statement;
 
 public class ConexionDB {
 
-    private static final String URL = "jdbc:sqlite:inventario_fersal.db";
+    // Obtenemos la ruta a la carpeta personal del usuario en Windows
+    private static final String CARPETA_APP = System.getProperty("user.home") + File.separator + "FersalInventario";
+
+    // Apuntamos la base de datos a esa nueva carpeta segura
+    private static final String URL = "jdbc:sqlite:" + CARPETA_APP + File.separator + "inventario_fersal.db";
 
     public static Connection conectar() {
+        File directorio = new File(CARPETA_APP);
+        if (!directorio.exists()) {
+            directorio.mkdirs();
+        }
+
         Connection conexion = null;
         try {
+            // Esta línea fuerza a Java a despertar el driver dentro del .exe
+            Class.forName("org.sqlite.JDBC");
+
             conexion = DriverManager.getConnection(URL);
-            // Activar las llaves foráneas en SQLite
             conexion.createStatement().execute("PRAGMA foreign_keys = ON;");
+        } catch (ClassNotFoundException e) {
+            System.err.println("El driver de SQLite no se empacó correctamente: " + e.getMessage());
         } catch (SQLException e) {
             System.err.println("Error al conectar a la base de datos: " + e.getMessage());
         }
