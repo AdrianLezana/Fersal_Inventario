@@ -6,6 +6,8 @@ public class DetalleOrdenTrabajo {
     private Integer ordenTrabajoId;
     private Integer productoId;
     private Double cantidadUtilizada;
+    private String nombreProducto;
+    private String unidadMedida;
 
     public DetalleOrdenTrabajo() {
     }
@@ -14,6 +16,17 @@ public class DetalleOrdenTrabajo {
         this.id = id;
         this.ordenTrabajoId = ordenTrabajoId;
         this.productoId = productoId;
+        this.cantidadUtilizada = cantidadUtilizada;
+    }
+
+    public DetalleOrdenTrabajo(
+            Integer productoId,
+            String nombreProducto,
+            String unidadMedida,
+            Double cantidadUtilizada) {
+        this.productoId = productoId;
+        this.nombreProducto = nombreProducto;
+        this.unidadMedida = unidadMedida;
         this.cantidadUtilizada = cantidadUtilizada;
     }
 
@@ -47,5 +60,21 @@ public class DetalleOrdenTrabajo {
 
     public void setCantidadUtilizada(Double cantidadUtilizada) {
         this.cantidadUtilizada = cantidadUtilizada;
+    }
+
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+
+    public String getUnidadMedida() {
+        return unidadMedida;
+    }
+
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
+    }
+
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
     }
 }

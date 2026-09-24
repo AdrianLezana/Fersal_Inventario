@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.OrdenTrabajoController"
+      prefWidth="760.0" prefHeight="560.0">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+    <Label text="Nueva Orden de Trabajo"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <GridPane hgap="10.0" vgap="10.0">
+        <Label text="Trabajador:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbTrabajador" maxWidth="Infinity"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Descripción:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="txtDescripcion" prefRowCount="2" wrapText="true"
+                  maxWidth="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Material:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbProducto" maxWidth="Infinity"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Cantidad:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <HBox spacing="8.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
+            <TextField fx:id="txtCantidad" promptText="Ej: 2.5" HBox.hgrow="ALWAYS"/>
+            <Button text="Agregar material" onAction="#agregarMaterial"/>
+        </HBox>
+        <columnConstraints>
+            <ColumnConstraints minWidth="110.0"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+    </GridPane>
+    <Label text="Materiales de la orden"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TableView fx:id="tablaMateriales" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colMaterial" text="Producto" prefWidth="360.0"/>
+            <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="120.0"/>
+            <TableColumn fx:id="colUnidad" text="Unidad" prefWidth="120.0"/>
+        </columns>
+    </TableView>
+    <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
+    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+        <Button text="Quitar material" onAction="#quitarMaterial"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Cancelar" onAction="#cerrarVentana"/>
+        <Button text="Confirmar Orden" onAction="#confirmarOrden"
+                defaultButton="true"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>

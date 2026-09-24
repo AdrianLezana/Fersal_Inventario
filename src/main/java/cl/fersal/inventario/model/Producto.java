@@ -136,4 +136,13 @@ public class Producto {
     public void setUsuarioId(Integer usuarioId) {
         this.usuarioId = usuarioId;
     }
+
+    @Override
+    public String toString() {
+        return (codigoInterno == null || codigoInterno.isBlank()
+                ? ""
+                : codigoInterno + " - ")
+                + nombre
+                + " (Stock: " + (stockActual == null ? 0.0 : stockActual) + ")";
+    }
 }

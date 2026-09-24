@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cl.fersal.inventario.controller.TrabajadoresController"
+            prefWidth="760.0" prefHeight="500.0">
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
+            <Label text="Trabajadores registrados"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <TableView fx:id="tablaTrabajadores" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colRut" text="RUT" prefWidth="150.0"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="260.0"/>
+                    <TableColumn fx:id="colCargo" text="Cargo" prefWidth="220.0"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+    <bottom>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="0.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
+            <Label text="Nuevo trabajador"
+                   style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+            <GridPane hgap="10.0" vgap="8.0">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="80.0"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints minWidth="80.0"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+                <Label text="RUT:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtRut" promptText="12.345.678-9"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtNombre" promptText="Nombre completo"
+                           GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                <Label text="Cargo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtCargo" promptText="Cargo"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            </GridPane>
+            <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
+            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                <Button text="Eliminar" onAction="#eliminarTrabajador"
+                        style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Cerrar" onAction="#cerrarVentana"/>
+                <Button text="Agregar" onAction="#agregarTrabajador"
+                        defaultButton="true"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

@@ -182,6 +182,74 @@ public class DashboardController {
         }
     }
 
+    @FXML
+    private void abrirOrdenTrabajo(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/orden_trabajo.fxml"));
+            javafx.scene.Parent root = loader.load();
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Nueva Orden de Trabajo");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(760);
+            stage.setMinHeight(560);
+            stage.showAndWait();
+            cargarDatos();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir la Orden de Trabajo:\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void abrirHistorialOrdenes(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/historial_ordenes.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Historial de Órdenes");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(950);
+            stage.setMinHeight(650);
+            stage.showAndWait();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el historial de órdenes:\n"
+                            + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void abrirGestionTrabajadores(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/trabajadores.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Trabajadores");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(760);
+            stage.setMinHeight(500);
+            stage.showAndWait();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el mantenedor de trabajadores:\n"
+                            + e.getMessage());
+        }
+    }
+
     private Path asegurarExtension(Path ruta, String extension) {
         String nombre = ruta.getFileName().toString();
         if (nombre.toLowerCase().endsWith(extension)) {
