@@ -234,6 +234,85 @@ public class DashboardController {
     }
 
     @FXML
+    private void ajustarStockSeleccionado(ActionEvent event) {
+        Producto seleccionado = tablaProductos.getSelectionModel().getSelectedItem();
+
+        if (seleccionado == null) {
+            mostrarAlerta("Advertencia", "Debe seleccionar un producto para ajustar su stock.");
+            return;
+        }
+
+        Double ajuste = solicitarAjusteStock(seleccionado);
+        if (ajuste == null) {
+            return;
+        }
+
+        double stockActual = seleccionado.getStockActual() != null
+                ? seleccionado.getStockActual()
+                : 0.0;
+        double stockNuevo = stockActual + ajuste;
+
+        if (stockNuevo < 0.0) {
+            mostrarAlerta(
+                    "Stock inválido",
+                    "El ajuste dejaría el stock en " + stockNuevo
+                            + ". El stock no puede ser negativo."
+            );
+            return;
+        }
+
+        seleccionado.setStockActual(stockNuevo);
+        String responsable = seleccionado.getUsuarioId() == null
+                ? "SISTEMA"
+                : "USUARIO_ID_" + seleccionado.getUsuarioId();
+
+        if (productoDAO.actualizar(seleccionado, "AJUSTE_MANUAL", responsable)) {
+            cargarDatos();
+            mostrarAlerta(
+                    "Stock actualizado",
+                    "El stock de \"" + seleccionado.getNombre()
+                            + "\" ahora es " + stockNuevo
+                            + ". El movimiento quedó registrado en el Kardex."
+            );
+        } else {
+            cargarDatos();
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo actualizar el stock ni registrar el movimiento."
+            );
+        }
+    }
+
+    private Double solicitarAjusteStock(Producto producto) {
+        while (true) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Ajustar stock");
+            dialog.setHeaderText("Producto: " + producto.getNombre());
+            dialog.setContentText(
+                    "Ingrese la diferencia a aplicar (+ para aumentar, - para disminuir):"
+            );
+
+            String texto = dialog.showAndWait().orElse(null);
+            if (texto == null) {
+                return null;
+            }
+
+            try {
+                double ajuste = Double.parseDouble(texto.trim().replace(',', '.'));
+                if (!Double.isFinite(ajuste) || ajuste == 0.0) {
+                    throw new NumberFormatException();
+                }
+                return ajuste;
+            } catch (NumberFormatException e) {
+                mostrarAlerta(
+                        "Cantidad inválida",
+                        "Ingrese un número distinto de cero. Ejemplos: 5, -2 o 1.5."
+                );
+            }
+        }
+    }
+
+    @FXML
     private void eliminarSeleccionado(ActionEvent event) {
         // 1. Obtener el producto que el usuario seleccionó en la tabla
         Producto seleccionado = tablaProductos.getSelectionModel().getSelectedItem();
