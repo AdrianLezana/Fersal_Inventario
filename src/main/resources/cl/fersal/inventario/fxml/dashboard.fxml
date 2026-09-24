@@ -53,6 +53,8 @@
             <Button text="Exportar a CSV" maxWidth="Infinity" onAction="#exportarCSV"/>
             <Button text="Ver Kardex" maxWidth="Infinity" onAction="#abrirKardex"/>
             <Button text="Editar Seleccionado" maxWidth="Infinity" onAction="#editarSeleccionado"/>
+            <Button text="Ajustar Stock" maxWidth="Infinity" onAction="#ajustarStockSeleccionado"
+                    style="-fx-background-color: #8e44ad; -fx-text-fill: white;"/>
             <Button text="Eliminar Seleccionado" maxWidth="Infinity" onAction="#eliminarSeleccionado" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
         </VBox>
     </right>
