@@ -47,7 +47,15 @@
             <!-- Cambiamos MAX_VALUE por Infinity -->
             <Button text="Nuevo Producto" maxWidth="Infinity" onAction="#abrirFormularioProducto" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
             <Button text="Ingresar Compra" maxWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
-            <Button text="Nueva Orden Trabajo" maxWidth="Infinity" style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
+            <Button text="Nueva Orden Trabajo" maxWidth="Infinity"
+                    onAction="#abrirOrdenTrabajo"
+                    style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
+            <Button text="Gestionar Trabajadores" maxWidth="Infinity"
+                    onAction="#abrirGestionTrabajadores"
+                    style="-fx-background-color: #16a085; -fx-text-fill: white;"/>
+            <Button text="Historial de Órdenes" maxWidth="Infinity"
+                    onAction="#abrirHistorialOrdenes"
+                    style="-fx-background-color: #34495e; -fx-text-fill: white;"/>
             <Region VBox.vgrow="ALWAYS" />
             <Button text="Exportar a Excel" maxWidth="Infinity" onAction="#exportarExcel"/>
             <Button text="Exportar a CSV" maxWidth="Infinity" onAction="#exportarCSV"/>

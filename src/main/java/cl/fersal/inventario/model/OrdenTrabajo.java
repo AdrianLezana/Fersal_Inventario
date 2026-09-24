@@ -9,6 +9,9 @@ public class OrdenTrabajo {
     private Integer usuarioId;
     private LocalDateTime fecha;
     private String tipoTrabajo;
+    private String fechaTexto;
+    private String nombreTrabajador;
+    private String descripcionTrabajo;
 
     public OrdenTrabajo() {
     }
@@ -59,5 +62,29 @@ public class OrdenTrabajo {
 
     public void setTipoTrabajo(String tipoTrabajo) {
         this.tipoTrabajo = tipoTrabajo;
+    }
+
+    public String getFechaTexto() {
+        return fechaTexto;
+    }
+
+    public void setFechaTexto(String fechaTexto) {
+        this.fechaTexto = fechaTexto;
+    }
+
+    public String getNombreTrabajador() {
+        return nombreTrabajador;
+    }
+
+    public void setNombreTrabajador(String nombreTrabajador) {
+        this.nombreTrabajador = nombreTrabajador;
+    }
+
+    public String getDescripcionTrabajo() {
+        return descripcionTrabajo;
+    }
+
+    public void setDescripcionTrabajo(String descripcionTrabajo) {
+        this.descripcionTrabajo = descripcionTrabajo;
     }
 }

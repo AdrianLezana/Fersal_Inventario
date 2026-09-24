@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.HistorialOrdenesController"
+      prefWidth="950.0" prefHeight="650.0">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+
+    <Label text="Historial de Órdenes de Trabajo"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label text="Órdenes registradas"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TableView fx:id="tablaOrdenes" prefHeight="300.0"
+               VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="60.0"/>
+            <TableColumn fx:id="colFecha" text="Fecha" prefWidth="160.0"/>
+            <TableColumn fx:id="colTrabajador" text="Trabajador"
+                         prefWidth="220.0"/>
+            <TableColumn fx:id="colDescripcion" text="Descripción"
+                         prefWidth="430.0"/>
+        </columns>
+    </TableView>
+
+    <Label text="Materiales consumidos"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TableView fx:id="tablaDetalles" prefHeight="220.0">
+        <columns>
+            <TableColumn fx:id="colProducto" text="Producto"
+                         prefWidth="600.0"/>
+            <TableColumn fx:id="colCantidad" text="Cantidad"
+                         prefWidth="180.0"/>
+        </columns>
+    </TableView>
+</VBox>

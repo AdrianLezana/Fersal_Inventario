@@ -96,6 +96,33 @@ public class ConexionDB {
                 FOREIGN KEY (producto_id) REFERENCES productos(id)
             );
 
+            -- 5. Trabajadores que solicitan materiales
+            CREATE TABLE IF NOT EXISTS trabajadores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                rut TEXT NOT NULL UNIQUE,
+                nombre TEXT NOT NULL,
+                cargo TEXT NOT NULL
+            );
+
+            -- 6. Cabecera de las órdenes de trabajo
+            CREATE TABLE IF NOT EXISTS ordenes_trabajo (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                trabajador_id INTEGER NOT NULL,
+                descripcion_trabajo TEXT NOT NULL,
+                FOREIGN KEY (trabajador_id) REFERENCES trabajadores(id)
+            );
+
+            -- 7. Materiales consumidos en cada orden
+            CREATE TABLE IF NOT EXISTS ordenes_trabajo_detalle (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                orden_trabajo_id INTEGER NOT NULL,
+                producto_id INTEGER NOT NULL,
+                cantidad REAL NOT NULL CHECK (cantidad > 0),
+                FOREIGN KEY (orden_trabajo_id) REFERENCES ordenes_trabajo(id),
+                FOREIGN KEY (producto_id) REFERENCES productos(id)
+            );
+
             -- Impide modificar o eliminar movimientos una vez registrados.
             CREATE TRIGGER IF NOT EXISTS impedir_actualizacion_movimiento
             BEFORE UPDATE ON movimientos_inventario
