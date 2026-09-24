@@ -13,24 +13,54 @@ public class ProductoDAO {
      * CREATE: Inserta un nuevo producto y retorna el objeto con su ID asignado.
      */
     public Producto crear(Producto producto) {
-        String sql = "INSERT INTO productos (codigo_interno, categoria_id, nombre, dimensiones, " +
+        String sqlProducto = "INSERT INTO productos (codigo_interno, categoria_id, nombre, dimensiones, " +
                 "unidad_medida, ubicacion, stock_actual, precio_venta, precio_venta_metro, " +
                 "precio_trabajado_metro, costo_promedio, usuario_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlMovimiento = "INSERT INTO movimientos_inventario " +
+                "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = ConexionDB.conectar();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) {
+            return null;
+        }
 
-            asignarParametros(pstmt, producto);
-            pstmt.executeUpdate();
+        try (conn) {
+            conn.setAutoCommit(false);
 
-            try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    producto.setId(rs.getInt(1));
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    sqlProducto, Statement.RETURN_GENERATED_KEYS)) {
+                asignarParametros(pstmt, producto);
+                pstmt.executeUpdate();
+
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        producto.setId(rs.getInt(1));
+                    }
                 }
             }
+
+            if (producto.getStockActual() != null && producto.getStockActual() != 0.0) {
+                registrarMovimiento(
+                        conn,
+                        sqlMovimiento,
+                        producto.getId(),
+                        producto.getStockActual(),
+                        "INGRESO_INICIAL",
+                        producto.getCostoPromedio(),
+                        responsable(producto.getUsuarioId())
+                );
+            }
+
+            conn.commit();
             return producto;
         } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackError) {
+                e.addSuppressed(rollbackError);
+            }
             System.err.println("Error al crear producto: " + e.getMessage());
             return null;
         }
@@ -61,23 +91,107 @@ public class ProductoDAO {
      * UPDATE: Actualiza los datos de un producto existente.
      */
     public boolean actualizar(Producto producto) {
-        String sql = "UPDATE productos SET codigo_interno = ?, categoria_id = ?, nombre = ?, " +
+        return actualizar(producto, "AJUSTE_MANUAL", responsable(producto.getUsuarioId()));
+    }
+
+    /**
+     * Actualiza un producto y registra cualquier diferencia de stock en la misma transacción.
+     */
+    public boolean actualizar(
+            Producto producto,
+            String tipoMovimiento,
+            String responsable) {
+        String sqlProducto = "UPDATE productos SET codigo_interno = ?, categoria_id = ?, nombre = ?, " +
                 "dimensiones = ?, unidad_medida = ?, ubicacion = ?, stock_actual = ?, " +
                 "precio_venta = ?, precio_venta_metro = ?, precio_trabajado_metro = ?, " +
                 "costo_promedio = ?, usuario_id = ? WHERE id = ?";
+        String sqlStockAnterior = "SELECT stock_actual FROM productos WHERE id = ?";
+        String sqlMovimiento = "INSERT INTO movimientos_inventario " +
+                "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = ConexionDB.conectar();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) {
+            return false;
+        }
 
-            asignarParametros(pstmt, producto);
-            pstmt.setInt(13, producto.getId()); // El ID para la cláusula WHERE
+        try (conn) {
+            conn.setAutoCommit(false);
+            double stockAnterior;
 
-            int filasAfectadas = pstmt.executeUpdate();
-            return filasAfectadas > 0;
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlStockAnterior)) {
+                pstmt.setInt(1, producto.getId());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return false;
+                    }
+                    stockAnterior = rs.getDouble("stock_actual");
+                }
+            }
+
+            int filasAfectadas;
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlProducto)) {
+                asignarParametros(pstmt, producto);
+                pstmt.setInt(13, producto.getId());
+                filasAfectadas = pstmt.executeUpdate();
+            }
+
+            if (filasAfectadas == 0) {
+                conn.rollback();
+                return false;
+            }
+
+            double stockNuevo = producto.getStockActual() != null
+                    ? producto.getStockActual()
+                    : 0.0;
+            double cantidadAfectada = stockNuevo - stockAnterior;
+
+            if (Double.compare(cantidadAfectada, 0.0) != 0) {
+                registrarMovimiento(
+                        conn,
+                        sqlMovimiento,
+                        producto.getId(),
+                        cantidadAfectada,
+                        tipoMovimiento,
+                        producto.getCostoPromedio(),
+                        responsable
+                );
+            }
+
+            conn.commit();
+            return true;
         } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackError) {
+                e.addSuppressed(rollbackError);
+            }
             System.err.println("Error al actualizar producto: " + e.getMessage());
             return false;
         }
+    }
+
+    private void registrarMovimiento(
+            Connection conn,
+            String sql,
+            int productoId,
+            double cantidadAfectada,
+            String tipoMovimiento,
+            Double costoUnitario,
+            String responsable) throws SQLException {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, productoId);
+            pstmt.setDouble(2, cantidadAfectada);
+            pstmt.setString(3, tipoMovimiento);
+            pstmt.setDouble(4, costoUnitario != null ? costoUnitario : 0.0);
+            pstmt.setString(5, responsable);
+            pstmt.executeUpdate();
+        }
+    }
+
+    private String responsable(Integer usuarioId) {
+        return usuarioId == null ? "SISTEMA" : "USUARIO_ID_" + usuarioId;
     }
 
     /**

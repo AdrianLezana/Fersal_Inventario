@@ -157,6 +157,31 @@ public class DashboardController {
         );
     }
 
+    @FXML
+    private void abrirKardex(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/kardex.fxml"
+                    )
+            );
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Kardex");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(800);
+            stage.setMinHeight(450);
+            stage.showAndWait();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir la vista del Kardex:\n" + e.getMessage()
+            );
+        }
+    }
+
     private Path asegurarExtension(Path ruta, String extension) {
         String nombre = ruta.getFileName().toString();
         if (nombre.toLowerCase().endsWith(extension)) {

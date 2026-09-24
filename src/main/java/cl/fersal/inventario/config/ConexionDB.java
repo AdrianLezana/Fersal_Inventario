@@ -3,6 +3,7 @@ package cl.fersal.inventario.config;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.nio.file.Path;
@@ -31,7 +32,10 @@ public class ConexionDB {
             Class.forName("org.sqlite.JDBC");
 
             conexion = DriverManager.getConnection(URL);
-            conexion.createStatement().execute("PRAGMA foreign_keys = ON;");
+            try (PreparedStatement pragma = conexion.prepareStatement(
+                    "PRAGMA foreign_keys = ON")) {
+                pragma.execute();
+            }
         } catch (ClassNotFoundException e) {
             System.err.println("El driver de SQLite no se empacó correctamente: " + e.getMessage());
         } catch (SQLException e) {
@@ -79,12 +83,37 @@ public class ConexionDB {
                 FOREIGN KEY (categoria_id) REFERENCES categorias(id),
                 FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
             );
+
+            -- 4. Historial inmutable de movimientos de inventario
+            CREATE TABLE IF NOT EXISTS movimientos_inventario (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                producto_id INTEGER NOT NULL,
+                cantidad_afectada REAL NOT NULL,
+                tipo_movimiento TEXT NOT NULL,
+                costo_unitario REAL NOT NULL DEFAULT 0.0,
+                responsable TEXT NOT NULL,
+                FOREIGN KEY (producto_id) REFERENCES productos(id)
+            );
+
+            -- Impide modificar o eliminar movimientos una vez registrados.
+            CREATE TRIGGER IF NOT EXISTS impedir_actualizacion_movimiento
+            BEFORE UPDATE ON movimientos_inventario
+            BEGIN
+                SELECT RAISE(ABORT, 'Los movimientos de inventario son inmutables');
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS impedir_eliminacion_movimiento
+            BEFORE DELETE ON movimientos_inventario
+            BEGIN
+                SELECT RAISE(ABORT, 'Los movimientos de inventario son inmutables');
+            END;
             """;
 
         try (Connection conn = conectar();
              Statement stmt = conn.createStatement()) {
 
-            // Ejecutamos todo el bloque SQL
+            // Ejecutamos todo el bloque SQL usando un Statement normal
             stmt.executeUpdate(sqlEsquema);
             System.out.println("Esquema de base de datos verificado/inicializado correctamente.");
 

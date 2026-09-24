@@ -45,4 +45,31 @@ public class ProductoService {
 
         return productoCreado;
     }
+
+    public void actualizarProducto(
+            Producto producto,
+            String tipoMovimiento,
+            String responsable) {
+        if (producto == null || producto.getId() == null) {
+            throw new IllegalArgumentException("El producto a actualizar no es válido.");
+        }
+        if (tipoMovimiento == null || tipoMovimiento.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar el tipo de movimiento.");
+        }
+        if (responsable == null || responsable.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar el responsable.");
+        }
+
+        boolean actualizado = productoDAO.actualizar(
+                producto,
+                tipoMovimiento.trim(),
+                responsable.trim()
+        );
+
+        if (!actualizado) {
+            throw new IllegalStateException(
+                    "No se pudo actualizar el producto y registrar el movimiento."
+            );
+        }
+    }
 }
