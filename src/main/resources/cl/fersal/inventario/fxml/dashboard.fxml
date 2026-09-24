@@ -49,6 +49,8 @@
             <Button text="Ingresar Compra" maxWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
             <Button text="Nueva Orden Trabajo" maxWidth="Infinity" style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
             <Region VBox.vgrow="ALWAYS" />
+            <Button text="Exportar a Excel" maxWidth="Infinity" onAction="#exportarExcel"/>
+            <Button text="Exportar a CSV" maxWidth="Infinity" onAction="#exportarCSV"/>
             <Button text="Editar Seleccionado" maxWidth="Infinity" onAction="#editarSeleccionado"/>
             <Button text="Eliminar Seleccionado" maxWidth="Infinity" onAction="#eliminarSeleccionado" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
         </VBox>

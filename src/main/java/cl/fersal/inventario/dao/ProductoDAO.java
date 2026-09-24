@@ -44,14 +44,15 @@ public class ProductoDAO {
         String sql = "SELECT * FROM productos";
 
         try (Connection conn = ConexionDB.conectar();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 productos.add(mapearProducto(rs));
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener productos: " + e.getMessage());
+            throw new IllegalStateException("No se pudo obtener el inventario para exportar.", e);
         }
         return productos;
     }
