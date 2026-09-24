@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.nio.file.Path;
 
 public class ConexionDB {
 
@@ -13,6 +14,10 @@ public class ConexionDB {
 
     // Apuntamos la base de datos a esa nueva carpeta segura
     private static final String URL = "jdbc:sqlite:" + CARPETA_APP + File.separator + "inventario_fersal.db";
+
+    public static Path obtenerRutaBaseDatos() {
+        return Path.of(CARPETA_APP, "inventario_fersal.db");
+    }
 
     public static Connection conectar() {
         File directorio = new File(CARPETA_APP);
