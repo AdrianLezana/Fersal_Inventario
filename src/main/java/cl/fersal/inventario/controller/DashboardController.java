@@ -3,6 +3,7 @@ package cl.fersal.inventario.controller;
 import cl.fersal.inventario.app.App;
 import cl.fersal.inventario.dao.ProductoDAO;
 import cl.fersal.inventario.model.Producto;
+import cl.fersal.inventario.service.ExportadorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,8 +14,11 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public class DashboardController {
@@ -34,6 +38,7 @@ public class DashboardController {
     @FXML private TableColumn<Producto, Double> colPrecioTrabajado;
 
     private final ProductoDAO productoDAO = new ProductoDAO();
+    private final ExportadorService exportadorService = new ExportadorService();
     private ObservableList<Producto> listaProductos;
 
     @FXML
@@ -92,6 +97,78 @@ public class DashboardController {
         } catch (IOException e) {
             System.err.println("Error al cargar la pantalla de login: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void exportarExcel(ActionEvent event) {
+        FileChooser selector = new FileChooser();
+        selector.setTitle("Guardar inventario como Excel");
+        selector.setInitialFileName("inventario.xlsx");
+        selector.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Libro de Excel (*.xlsx)", "*.xlsx")
+        );
+
+        Window ventana = tablaProductos.getScene().getWindow();
+        java.io.File archivo = selector.showSaveDialog(ventana);
+        if (archivo == null) {
+            return;
+        }
+
+        Path destino = asegurarExtension(Path.of(archivo.toURI()), ".xlsx");
+        exportadorService.exportarExcelAsync(
+                destino,
+                ruta -> mostrarAlerta(
+                        "Exportación completada",
+                        "El archivo Excel fue creado en:\n" + ruta
+                ),
+                error -> mostrarAlerta(
+                        "Error de exportación",
+                        "No se pudo generar el archivo Excel:\n" + mensajeError(error)
+                )
+        );
+    }
+
+    @FXML
+    private void exportarCSV(ActionEvent event) {
+        FileChooser selector = new FileChooser();
+        selector.setTitle("Guardar inventario como CSV");
+        selector.setInitialFileName("inventario.csv");
+        selector.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivo CSV (*.csv)", "*.csv")
+        );
+
+        Window ventana = tablaProductos.getScene().getWindow();
+        java.io.File archivo = selector.showSaveDialog(ventana);
+        if (archivo == null) {
+            return;
+        }
+
+        Path destino = asegurarExtension(Path.of(archivo.toURI()), ".csv");
+        exportadorService.exportarCSVAsync(
+                destino,
+                ruta -> mostrarAlerta(
+                        "Exportación completada",
+                        "El archivo CSV fue creado en:\n" + ruta
+                ),
+                error -> mostrarAlerta(
+                        "Error de exportación",
+                        "No se pudo generar el archivo CSV:\n" + mensajeError(error)
+                )
+        );
+    }
+
+    private Path asegurarExtension(Path ruta, String extension) {
+        String nombre = ruta.getFileName().toString();
+        if (nombre.toLowerCase().endsWith(extension)) {
+            return ruta;
+        }
+        return ruta.resolveSibling(nombre + extension);
+    }
+
+    private String mensajeError(Exception error) {
+        return error.getMessage() == null
+                ? error.getClass().getSimpleName()
+                : error.getMessage();
     }
 
     private void configurarBusqueda() {
