@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cl.fersal.inventario.controller.KardexController"
+            prefHeight="600.0"
+            prefWidth="1000.0">
+    <top>
+        <Label text="Kardex - Historial de Movimientos"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 15px;" />
+    </top>
+    <center>
+        <TableView fx:id="tablaKardex"
+                   BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="colFecha"
+                             text="Fecha"
+                             prefWidth="150.0" />
+                <TableColumn fx:id="colProducto"
+                             text="Nombre del Producto"
+                             prefWidth="220.0" />
+                <TableColumn fx:id="colCantidad"
+                             text="Cantidad"
+                             prefWidth="100.0" />
+                <TableColumn fx:id="colTipoMovimiento"
+                             text="Tipo de Movimiento"
+                             prefWidth="180.0" />
+                <TableColumn fx:id="colCostoUnitario"
+                             text="Costo Unitario"
+                             prefWidth="120.0" />
+                <TableColumn fx:id="colResponsable"
+                             text="Responsable"
+                             prefWidth="160.0" />
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

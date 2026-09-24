@@ -51,6 +51,7 @@
             <Region VBox.vgrow="ALWAYS" />
             <Button text="Exportar a Excel" maxWidth="Infinity" onAction="#exportarExcel"/>
             <Button text="Exportar a CSV" maxWidth="Infinity" onAction="#exportarCSV"/>
+            <Button text="Ver Kardex" maxWidth="Infinity" onAction="#abrirKardex"/>
             <Button text="Editar Seleccionado" maxWidth="Infinity" onAction="#editarSeleccionado"/>
             <Button text="Eliminar Seleccionado" maxWidth="Infinity" onAction="#eliminarSeleccionado" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
         </VBox>

@@ -68,8 +68,11 @@ public class ProductoFormController {
             productoGuardar.setUsuarioId(1);
 
             if (esEdicion) {
-                cl.fersal.inventario.dao.ProductoDAO dao = new cl.fersal.inventario.dao.ProductoDAO();
-                dao.actualizar(productoGuardar);
+                productoService.actualizarProducto(
+                        productoGuardar,
+                        "AJUSTE_MANUAL",
+                        "USUARIO_ID_1"
+                );
             } else {
                 productoService.registrarNuevoProducto(productoGuardar);
             }
