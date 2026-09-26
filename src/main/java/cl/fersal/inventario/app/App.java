@@ -34,7 +34,7 @@ public class App extends Application {
 
         stage.setTitle("Fersal Inventario - Acceso");
         stage.setScene(scene);
-        stage.setResizable(false); // Bloqueamos el redimensionamiento para el login
+        stage.setResizable(true); // Bloqueamos el redimensionamiento para el login
         stage.show();
     }
 

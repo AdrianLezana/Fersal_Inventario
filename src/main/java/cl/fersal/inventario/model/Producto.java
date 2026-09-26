@@ -13,6 +13,7 @@ public class Producto {
     private Double precioVentaMetro;
     private Double precioTrabajadoMetro;
     private Double costoPromedio;
+    private String estado;
     private Integer usuarioId; // Trazabilidad
 
     public Producto() {}
@@ -127,6 +128,14 @@ public class Producto {
 
     public void setCostoPromedio(Double costoPromedio) {
         this.costoPromedio = costoPromedio;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     public Integer getUsuarioId() {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.nio.file.Path;
@@ -79,6 +80,7 @@ public class ConexionDB {
                 precio_venta_metro REAL,
                 precio_trabajado_metro REAL,
                 costo_promedio REAL DEFAULT 0.0,
+                estado TEXT NOT NULL DEFAULT 'ACTIVO',
                 usuario_id INTEGER NOT NULL,
                 FOREIGN KEY (categoria_id) REFERENCES categorias(id),
                 FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
@@ -123,6 +125,38 @@ public class ConexionDB {
                 FOREIGN KEY (producto_id) REFERENCES productos(id)
             );
 
+            -- 8. Proveedores de inventario
+            CREATE TABLE IF NOT EXISTS proveedores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                rut TEXT NOT NULL UNIQUE,
+                nombre TEXT NOT NULL,
+                telefono TEXT,
+                email TEXT
+            );
+
+            -- 9. Cabecera de las órdenes de compra
+            CREATE TABLE IF NOT EXISTS ordenes_compra (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                proveedor_id INTEGER NOT NULL,
+                numero_documento TEXT NOT NULL,
+                neto REAL NOT NULL CHECK (neto >= 0),
+                iva REAL NOT NULL CHECK (iva >= 0),
+                total REAL NOT NULL CHECK (total >= 0),
+                FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
+            );
+
+            -- 10. Productos incluidos en cada orden de compra
+            CREATE TABLE IF NOT EXISTS detalle_orden_compra (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                orden_id INTEGER NOT NULL,
+                producto_id INTEGER NOT NULL,
+                cantidad REAL NOT NULL CHECK (cantidad > 0),
+                precio_unitario REAL NOT NULL CHECK (precio_unitario >= 0),
+                FOREIGN KEY (orden_id) REFERENCES ordenes_compra(id),
+                FOREIGN KEY (producto_id) REFERENCES productos(id)
+            );
+
             -- Impide modificar o eliminar movimientos una vez registrados.
             CREATE TRIGGER IF NOT EXISTS impedir_actualizacion_movimiento
             BEFORE UPDATE ON movimientos_inventario
@@ -142,10 +176,37 @@ public class ConexionDB {
 
             // Ejecutamos todo el bloque SQL usando un Statement normal
             stmt.executeUpdate(sqlEsquema);
+            asegurarColumnaEstadoProducto(conn);
             System.out.println("Esquema de base de datos verificado/inicializado correctamente.");
 
         } catch (SQLException e) {
             System.err.println("Error al inicializar la base de datos: " + e.getMessage());
+        }
+    }
+
+    private static void asegurarColumnaEstadoProducto(Connection conn)
+            throws SQLException {
+        boolean existeEstado = false;
+        String sqlColumnas = "PRAGMA table_info(productos)";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlColumnas)) {
+            while (rs.next()) {
+                if ("estado".equalsIgnoreCase(rs.getString("name"))) {
+                    existeEstado = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existeEstado) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                        "ALTER TABLE productos "
+                                + "ADD COLUMN estado TEXT "
+                                + "NOT NULL DEFAULT 'ACTIVO'"
+                );
+            }
         }
     }
 }
