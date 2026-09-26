@@ -24,6 +24,9 @@
                 <Button text="Buscar" />
                 <CheckBox fx:id="chkMostrarInactivos"
                           text="Mostrar inactivos"/>
+                <Button text="↻ Actualizar Tablas"
+                        onAction="#actualizarTablas"
+                        style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
             </HBox>
 
             <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS">

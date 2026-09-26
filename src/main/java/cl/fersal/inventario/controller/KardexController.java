@@ -54,10 +54,10 @@ public class KardexController {
                 new PropertyValueFactory<>("responsable")
         );
 
-        cargarMovimientos();
+        cargarKardex();
     }
 
-    private void cargarMovimientos() {
+    public void cargarKardex() {
         try {
             List<MovimientoInventario> movimientos =
                     kardexDAO.obtenerTodos();

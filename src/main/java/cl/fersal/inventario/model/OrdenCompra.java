@@ -15,6 +15,7 @@ public class OrdenCompra {
     private Double neto;
     private Double iva;
     private Double total;
+    private String estado;
 
     public OrdenCompra() {
     }
@@ -113,6 +114,14 @@ public class OrdenCompra {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
 }

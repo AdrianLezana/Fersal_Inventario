@@ -18,7 +18,8 @@ public class OrdenTrabajoDAO {
         String sql = """
                 SELECT o.id, o.fecha, o.trabajador_id,
                        t.nombre AS nombre_trabajador,
-                       o.descripcion_trabajo
+                       o.descripcion_trabajo,
+                       COALESCE(o.estado, 'ACTIVA') AS estado
                 FROM ordenes_trabajo o
                 INNER JOIN trabajadores t ON t.id = o.trabajador_id
                 ORDER BY o.fecha DESC, o.id DESC
@@ -36,6 +37,7 @@ public class OrdenTrabajoDAO {
                 orden.setNombreTrabajador(rs.getString("nombre_trabajador"));
                 orden.setDescripcionTrabajo(
                         rs.getString("descripcion_trabajo"));
+                orden.setEstado(rs.getString("estado"));
                 ordenes.add(orden);
             }
             return ordenes;
@@ -80,6 +82,112 @@ public class OrdenTrabajoDAO {
         } catch (SQLException e) {
             throw new IllegalStateException(
                     "No se pudo cargar el detalle de la orden.", e);
+        }
+    }
+
+    public void anularOrden(int idOrden) {
+        String sqlAnular = """
+                UPDATE ordenes_trabajo
+                SET estado = 'ANULADA'
+                WHERE id = ? AND COALESCE(estado, 'ACTIVA') = 'ACTIVA'
+                """;
+        String sqlDetalles = """
+                SELECT d.producto_id, d.cantidad, p.costo_promedio
+                FROM ordenes_trabajo_detalle d
+                INNER JOIN productos p ON p.id = d.producto_id
+                WHERE d.orden_trabajo_id = ?
+                ORDER BY d.id
+                """;
+        String sqlDevolverStock = """
+                UPDATE productos
+                SET stock_actual = COALESCE(stock_actual, 0) + ?
+                WHERE id = ?
+                """;
+        String sqlMovimiento = """
+                INSERT INTO movimientos_inventario
+                    (producto_id, cantidad_afectada, tipo_movimiento,
+                     costo_unitario, responsable)
+                VALUES (?, ?, ?, ?, ?)
+                """;
+
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) {
+            throw new IllegalStateException(
+                    "No se pudo conectar a la base de datos.");
+        }
+
+        try (conn) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement pstmt =
+                             conn.prepareStatement(sqlAnular)) {
+                    pstmt.setInt(1, idOrden);
+                    if (pstmt.executeUpdate() != 1) {
+                        throw new IllegalStateException(
+                                "La orden no existe o ya fue anulada.");
+                    }
+                }
+
+                try (PreparedStatement pstmt =
+                             conn.prepareStatement(sqlDetalles);
+                     PreparedStatement actualizarStock =
+                             conn.prepareStatement(sqlDevolverStock);
+                     PreparedStatement insertarMovimiento =
+                             conn.prepareStatement(sqlMovimiento)) {
+                    pstmt.setInt(1, idOrden);
+
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        while (rs.next()) {
+                            int productoId = rs.getInt("producto_id");
+                            double cantidad = rs.getDouble("cantidad");
+                            double costoUnitario =
+                                    rs.getDouble("costo_promedio");
+
+                            actualizarStock.setDouble(1, cantidad);
+                            actualizarStock.setInt(2, productoId);
+                            if (actualizarStock.executeUpdate() != 1) {
+                                throw new SQLException(
+                                        "No se pudo devolver el stock del "
+                                                + "producto ID " + productoId);
+                            }
+
+                            insertarMovimiento.setInt(1, productoId);
+                            insertarMovimiento.setDouble(2, cantidad);
+                            insertarMovimiento.setString(
+                                    3,
+                                    "Reverso por anulación OT #" + idOrden);
+                            insertarMovimiento.setDouble(4, costoUnitario);
+                            insertarMovimiento.setString(
+                                    5,
+                                    "ORDEN_TRABAJO_ID_" + idOrden);
+                            insertarMovimiento.executeUpdate();
+                        }
+                    }
+                }
+
+                conn.commit();
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+
+                if (e instanceof IllegalStateException illegalStateException) {
+                    throw illegalStateException;
+                }
+
+                throw new IllegalStateException(
+                        "No se pudo anular la orden. "
+                                + "No se aplicaron cambios.",
+                        e
+                );
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "No se pudo completar la transacción de anulación.",
+                    e
+            );
         }
     }
 

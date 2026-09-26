@@ -19,7 +19,8 @@ public class OrdenCompraDAO {
         String sql = """
                 SELECT o.id, o.fecha, o.proveedor_id,
                        p.nombre AS nombre_proveedor,
-                       o.numero_documento, o.neto, o.iva, o.total
+                       o.numero_documento, o.neto, o.iva, o.total,
+                       COALESCE(o.estado, 'ACTIVA') AS estado
                 FROM ordenes_compra o
                 INNER JOIN proveedores p ON p.id = o.proveedor_id
                 ORDER BY o.fecha DESC, o.id DESC
@@ -41,6 +42,7 @@ public class OrdenCompraDAO {
                 orden.setNeto(rs.getDouble("neto"));
                 orden.setIva(rs.getDouble("iva"));
                 orden.setTotal(rs.getDouble("total"));
+                orden.setEstado(rs.getString("estado"));
                 ordenes.add(orden);
             }
             return ordenes;
@@ -84,6 +86,119 @@ public class OrdenCompraDAO {
         } catch (SQLException e) {
             throw new IllegalStateException(
                     "No se pudo cargar el detalle de la compra.", e);
+        }
+    }
+
+    public void anularOrden(int idOrden) {
+        String sqlAnular = """
+                UPDATE ordenes_compra
+                SET estado = 'ANULADA'
+                WHERE id = ? AND COALESCE(estado, 'ACTIVA') = 'ACTIVA'
+                """;
+        String sqlDetalles = """
+                SELECT producto_id, cantidad, precio_unitario
+                FROM detalle_orden_compra
+                WHERE orden_id = ?
+                ORDER BY id
+                """;
+        String sqlRestarStock = """
+                UPDATE productos
+                SET stock_actual = COALESCE(stock_actual, 0) - ?
+                WHERE id = ? AND COALESCE(stock_actual, 0) >= ?
+                """;
+        String sqlMovimiento = """
+                INSERT INTO movimientos_inventario
+                    (producto_id, cantidad_afectada, tipo_movimiento,
+                     costo_unitario, responsable)
+                VALUES (?, ?, ?, ?, ?)
+                """;
+
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) {
+            throw new IllegalStateException(
+                    "No se pudo conectar a la base de datos.");
+        }
+
+        try (conn) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement pstmt =
+                             conn.prepareStatement(sqlAnular)) {
+                    pstmt.setInt(1, idOrden);
+                    if (pstmt.executeUpdate() != 1) {
+                        throw new IllegalStateException(
+                                "La orden de compra no existe o ya fue anulada.");
+                    }
+                }
+
+                try (PreparedStatement consultarDetalle =
+                             conn.prepareStatement(sqlDetalles);
+                     PreparedStatement restarStock =
+                             conn.prepareStatement(sqlRestarStock);
+                     PreparedStatement insertarMovimiento =
+                             conn.prepareStatement(sqlMovimiento)) {
+                    consultarDetalle.setInt(1, idOrden);
+
+                    try (ResultSet rs = consultarDetalle.executeQuery()) {
+                        boolean tieneDetalles = false;
+                        while (rs.next()) {
+                            tieneDetalles = true;
+                            int productoId = rs.getInt("producto_id");
+                            double cantidad = rs.getDouble("cantidad");
+                            double precioUnitario =
+                                    rs.getDouble("precio_unitario");
+
+                            restarStock.setDouble(1, cantidad);
+                            restarStock.setInt(2, productoId);
+                            restarStock.setDouble(3, cantidad);
+                            if (restarStock.executeUpdate() != 1) {
+                                throw new IllegalStateException(
+                                        "No se puede anular la compra: "
+                                                + "el stock disponible del "
+                                                + "producto ID " + productoId
+                                                + " es insuficiente.");
+                            }
+
+                            insertarMovimiento.setInt(1, productoId);
+                            insertarMovimiento.setDouble(2, -cantidad);
+                            insertarMovimiento.setString(
+                                    3,
+                                    "Reverso por anulación OC #" + idOrden);
+                            insertarMovimiento.setDouble(4, precioUnitario);
+                            insertarMovimiento.setString(
+                                    5,
+                                    "ORDEN_COMPRA_ID_" + idOrden);
+                            insertarMovimiento.executeUpdate();
+                        }
+
+                        if (!tieneDetalles) {
+                            throw new IllegalStateException(
+                                    "La orden no tiene productos para revertir.");
+                        }
+                    }
+                }
+
+                conn.commit();
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+
+                if (e instanceof IllegalStateException illegalStateException) {
+                    throw illegalStateException;
+                }
+
+                throw new IllegalStateException(
+                        "No se pudo anular la orden de compra. "
+                                + "No se aplicaron cambios.",
+                        e);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "No se pudo completar la transacción de anulación.",
+                    e);
         }
     }
 

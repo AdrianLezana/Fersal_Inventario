@@ -6,6 +6,7 @@ import cl.fersal.inventario.model.OrdenTrabajo;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,6 +19,7 @@ public class HistorialOrdenesController {
     @FXML private TableColumn<OrdenTrabajo, String> colFecha;
     @FXML private TableColumn<OrdenTrabajo, String> colTrabajador;
     @FXML private TableColumn<OrdenTrabajo, String> colDescripcion;
+    @FXML private TableColumn<OrdenTrabajo, String> colEstado;
 
     @FXML private TableView<DetalleOrdenTrabajo> tablaDetalles;
     @FXML private TableColumn<DetalleOrdenTrabajo, String> colProducto;
@@ -35,6 +37,8 @@ public class HistorialOrdenesController {
                 new PropertyValueFactory<>("nombreTrabajador"));
         colDescripcion.setCellValueFactory(
                 new PropertyValueFactory<>("descripcionTrabajo"));
+        colEstado.setCellValueFactory(
+                new PropertyValueFactory<>("estado"));
 
         colProducto.setCellValueFactory(
                 new PropertyValueFactory<>("nombreProducto"));
@@ -49,7 +53,7 @@ public class HistorialOrdenesController {
         cargarOrdenes();
     }
 
-    private void cargarOrdenes() {
+    public void cargarOrdenes() {
         try {
             List<OrdenTrabajo> ordenes = ordenTrabajoDAO.obtenerTodas();
             tablaOrdenes.setItems(
@@ -75,6 +79,65 @@ public class HistorialOrdenesController {
                     FXCollections.observableArrayList(detalles));
         } catch (IllegalStateException e) {
             mostrarError("No se pudo cargar el detalle de la orden.", e);
+        }
+    }
+
+    @FXML
+    private void anularOrdenSeleccionada() {
+        OrdenTrabajo seleccionada =
+                tablaOrdenes.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Sin selección");
+            alerta.setHeaderText(null);
+            alerta.setContentText("Seleccione una orden para anular.");
+            alerta.showAndWait();
+            return;
+        }
+
+        if ("ANULADA".equalsIgnoreCase(seleccionada.getEstado())) {
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Orden ya anulada");
+            alerta.setHeaderText(null);
+            alerta.setContentText(
+                    "La orden seleccionada ya fue anulada.");
+            alerta.showAndWait();
+            return;
+        }
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar anulación");
+        confirmacion.setHeaderText(
+                "¿Anular la Orden de Trabajo #"
+                        + seleccionada.getId() + "?");
+        confirmacion.setContentText(
+                "Se devolverán sus materiales al inventario y quedará "
+                        + "registrado el reverso en el Kardex.");
+
+        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL)
+                != ButtonType.OK) {
+            return;
+        }
+
+        Integer idOrden = seleccionada.getId();
+        try {
+            ordenTrabajoDAO.anularOrden(idOrden);
+            cargarOrdenes();
+            tablaOrdenes.getItems().stream()
+                    .filter(orden -> orden.getId().equals(idOrden))
+                    .findFirst()
+                    .ifPresent(orden ->
+                            tablaOrdenes.getSelectionModel().select(orden));
+
+            Alert resultado = new Alert(Alert.AlertType.INFORMATION);
+            resultado.setTitle("Orden anulada");
+            resultado.setHeaderText(null);
+            resultado.setContentText(
+                    "La orden fue anulada y sus materiales fueron "
+                            + "devueltos al inventario.");
+            resultado.showAndWait();
+        } catch (IllegalStateException e) {
+            mostrarError("No se pudo anular la orden.", e);
         }
     }
 

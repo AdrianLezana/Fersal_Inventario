@@ -112,6 +112,7 @@ public class ConexionDB {
                 fecha TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 trabajador_id INTEGER NOT NULL,
                 descripcion_trabajo TEXT NOT NULL,
+                estado TEXT NOT NULL DEFAULT 'ACTIVA',
                 FOREIGN KEY (trabajador_id) REFERENCES trabajadores(id)
             );
 
@@ -143,6 +144,7 @@ public class ConexionDB {
                 neto REAL NOT NULL CHECK (neto >= 0),
                 iva REAL NOT NULL CHECK (iva >= 0),
                 total REAL NOT NULL CHECK (total >= 0),
+                estado TEXT NOT NULL DEFAULT 'ACTIVA',
                 FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
             );
 
@@ -177,6 +179,8 @@ public class ConexionDB {
             // Ejecutamos todo el bloque SQL usando un Statement normal
             stmt.executeUpdate(sqlEsquema);
             asegurarColumnaEstadoProducto(conn);
+            asegurarColumnaEstadoOrdenTrabajo(conn);
+            asegurarColumnaEstadoOrdenCompra(conn);
             System.out.println("Esquema de base de datos verificado/inicializado correctamente.");
 
         } catch (SQLException e) {
@@ -205,6 +209,58 @@ public class ConexionDB {
                         "ALTER TABLE productos "
                                 + "ADD COLUMN estado TEXT "
                                 + "NOT NULL DEFAULT 'ACTIVO'"
+                );
+            }
+        }
+    }
+
+    private static void asegurarColumnaEstadoOrdenTrabajo(Connection conn)
+            throws SQLException {
+        boolean existeEstado = false;
+        String sqlColumnas = "PRAGMA table_info(ordenes_trabajo)";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlColumnas)) {
+            while (rs.next()) {
+                if ("estado".equalsIgnoreCase(rs.getString("name"))) {
+                    existeEstado = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existeEstado) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                        "ALTER TABLE ordenes_trabajo "
+                                + "ADD COLUMN estado TEXT "
+                                + "NOT NULL DEFAULT 'ACTIVA'"
+                );
+            }
+        }
+    }
+
+    private static void asegurarColumnaEstadoOrdenCompra(Connection conn)
+            throws SQLException {
+        boolean existeEstado = false;
+        String sqlColumnas = "PRAGMA table_info(ordenes_compra)";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlColumnas)) {
+            while (rs.next()) {
+                if ("estado".equalsIgnoreCase(rs.getString("name"))) {
+                    existeEstado = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existeEstado) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                        "ALTER TABLE ordenes_compra "
+                                + "ADD COLUMN estado TEXT "
+                                + "NOT NULL DEFAULT 'ACTIVA'"
                 );
             }
         }

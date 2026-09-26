@@ -12,6 +12,7 @@ public class OrdenTrabajo {
     private String fechaTexto;
     private String nombreTrabajador;
     private String descripcionTrabajo;
+    private String estado;
 
     public OrdenTrabajo() {
     }
@@ -86,5 +87,13 @@ public class OrdenTrabajo {
 
     public void setDescripcionTrabajo(String descripcionTrabajo) {
         this.descripcionTrabajo = descripcionTrabajo;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }
