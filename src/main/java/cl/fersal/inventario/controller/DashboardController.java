@@ -41,6 +41,8 @@ public class DashboardController {
     private final ProductoDAO productoDAO = new ProductoDAO();
     private final ExportadorService exportadorService = new ExportadorService();
     private ObservableList<Producto> listaProductos;
+    private javafx.stage.Stage ventanaKardex;
+    private KardexController controladorKardex;
 
     @FXML
     public void initialize() {
@@ -72,6 +74,25 @@ public class DashboardController {
     }
 
     @FXML
+    private void actualizarTablas(ActionEvent event) {
+        try {
+            refrescarTablas();
+        } catch (IllegalStateException e) {
+            mostrarAlerta(
+                    "Error al actualizar",
+                    "No se pudieron actualizar las tablas:\n"
+                            + mensajeError(e));
+        }
+    }
+
+    private void refrescarTablas() {
+        cargarDatos();
+        if (controladorKardex != null) {
+            controladorKardex.cargarKardex();
+        }
+    }
+
+    @FXML
     private void abrirFormularioProducto(ActionEvent event) {
         try {
             javafx.fxml.FXMLLoader fxmlLoader = new javafx.fxml.FXMLLoader(App.class.getResource("/cl/fersal/inventario/fxml/producto_form.fxml"));
@@ -87,8 +108,7 @@ public class DashboardController {
 
             stage.showAndWait(); // Pausa la ejecución aquí hasta que la ventana se cierre
 
-            // Refrescar la tabla cuando el usuario termine de agregar el producto
-            cargarDatos();
+            refrescarTablas();
 
         } catch (java.io.IOException e) {
             System.err.println("Error al abrir el formulario: " + e.getMessage());
@@ -111,7 +131,7 @@ public class DashboardController {
             stage.setMinHeight(650);
             stage.showAndWait();
 
-            cargarDatos();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -135,6 +155,7 @@ public class DashboardController {
             stage.setMinWidth(1050);
             stage.setMinHeight(680);
             stage.showAndWait();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -212,6 +233,12 @@ public class DashboardController {
 
     @FXML
     private void abrirKardex(ActionEvent event) {
+        if (ventanaKardex != null && ventanaKardex.isShowing()) {
+            ventanaKardex.toFront();
+            controladorKardex.cargarKardex();
+            return;
+        }
+
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
                     App.class.getResource(
@@ -223,10 +250,15 @@ public class DashboardController {
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("Fersal Inventario - Kardex");
             stage.setScene(new javafx.scene.Scene(root));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.setMinWidth(800);
             stage.setMinHeight(450);
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            controladorKardex = loader.getController();
+            ventanaKardex = stage;
             stage.showAndWait();
+            refrescarTablas();
+            ventanaKardex = null;
+            controladorKardex = null;
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -249,7 +281,7 @@ public class DashboardController {
             stage.setMinWidth(760);
             stage.setMinHeight(560);
             stage.showAndWait();
-            cargarDatos();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -272,6 +304,7 @@ public class DashboardController {
             stage.setMinWidth(950);
             stage.setMinHeight(650);
             stage.showAndWait();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -295,6 +328,7 @@ public class DashboardController {
             stage.setMinWidth(760);
             stage.setMinHeight(500);
             stage.showAndWait();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -318,6 +352,7 @@ public class DashboardController {
             stage.setMinWidth(820);
             stage.setMinHeight(520);
             stage.showAndWait();
+            refrescarTablas();
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
@@ -530,7 +565,7 @@ public class DashboardController {
             stage.setResizable(false);
             stage.showAndWait();
 
-            cargarDatos(); // Recargar la tabla por si el usuario modificó algo
+            refrescarTablas();
 
         } catch (java.io.IOException e) {
             System.err.println("Error al abrir el formulario de edición: " + e.getMessage());

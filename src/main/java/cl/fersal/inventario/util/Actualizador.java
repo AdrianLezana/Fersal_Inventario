@@ -4,34 +4,54 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.concurrent.CompletionException;
 
 public class Actualizador {
 
     public static final String VERSION_LOCAL = "1.0"; // Cambiar manualmente después de cada nueva implementación
     private static final String URL_VERSION_REMOTA = "https://raw.githubusercontent.com/AdrianLezana/Fersal_Inventario/main/version.txt";
+    private static final String URL_DESCARGA_RELEASE =
+            "https://github.com/AdrianLezana/Fersal_Inventario/releases/download/";
+    private static final String NOMBRE_INSTALADOR =
+            "FersalInventario.exe";
 
     public static void verificarActualizaciones() {
-        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL_VERSION_REMOTA)).GET().build();
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(URL_VERSION_REMOTA))
+                .timeout(Duration.ofSeconds(20))
+                .GET()
+                .build();
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(versionRemota -> {
-                    String nuevaVersion = versionRemota.trim();
-                    if (!nuevaVersion.isEmpty() && !nuevaVersion.equals(VERSION_LOCAL)) {
+                .thenAccept(response -> {
+                    if (response.statusCode() != 200) {
+                        return;
+                    }
+
+                    String nuevaVersion = response.body().trim();
+                    if (esVersionValida(nuevaVersion)
+                            && !nuevaVersion.equals(VERSION_LOCAL)) {
                         Platform.runLater(() -> preguntarPorActualizacion(nuevaVersion));
                     }
                 })
-                .exceptionally(e -> null); // Falla en silencio si no hay internet
+                .exceptionally(error -> {
+                    System.err.println(
+                            "No se pudo consultar la versión remota: "
+                                    + mensajeError(error));
+                    return null;
+                });
     }
 
     private static void preguntarPorActualizacion(String nuevaVersion) {
@@ -50,45 +70,119 @@ public class Actualizador {
     private static void descargarEInstalar(String nuevaVersion) {
         Alert alertaDescarga = new Alert(Alert.AlertType.INFORMATION);
         alertaDescarga.setTitle("Actualizando...");
-        alertaDescarga.setHeaderText("Descargando actualización");
-        alertaDescarga.setContentText("Por favor, espere. Descargando desde GitHub...");
+        alertaDescarga.setHeaderText(null);
+        alertaDescarga.setContentText(
+                "Descargando actualización, por favor espere...");
         alertaDescarga.show();
 
-        new Thread(() -> {
-            try {
-                // URL predecible donde buscará el archivo dentro de las "Releases" de GitHub
-                String urlExe = "https://github.com/AdrianLezana/Fersal_Inventario/releases/download/" + nuevaVersion + "/FersalInventario.exe";
+        Path archivoTemporal = null;
+        try {
+            Path directorioTemporal = Path.of(
+                    System.getProperty("java.io.tmpdir"));
+            archivoTemporal = Files.createTempFile(
+                    directorioTemporal,
+                    "FersalInventario_Update_",
+                    ".exe");
 
-                // followRedirects es OBLIGATORIO para descargar binarios desde GitHub
-                HttpClient client = HttpClient.newBuilder()
-                        .followRedirects(HttpClient.Redirect.ALWAYS)
-                        .build();
+            URI uriDescarga = URI.create(
+                    URL_DESCARGA_RELEASE
+                            + nuevaVersion
+                            + "/"
+                            + NOMBRE_INSTALADOR);
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(15))
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uriDescarga)
+                    .timeout(Duration.ofMinutes(5))
+                    .GET()
+                    .build();
 
-                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlExe)).GET().build();
-                HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            Path destino = archivoTemporal;
+            client.sendAsync(
+                            request,
+                            HttpResponse.BodyHandlers.ofFile(destino))
+                    .whenComplete((response, error) -> {
+                        if (error != null) {
+                            eliminarArchivoTemporal(destino);
+                            Platform.runLater(() -> {
+                                alertaDescarga.close();
+                                mostrarError(
+                                        "Error durante la descarga: "
+                                                + mensajeError(error));
+                            });
+                            return;
+                        }
 
-                if (response.statusCode() == 200) {
-                    Path rutaTemporal = Path.of(System.getProperty("java.io.tmpdir"), "FersalInventario_Update.exe");
-                    Files.copy(response.body(), rutaTemporal, StandardCopyOption.REPLACE_EXISTING);
+                        if (response.statusCode() != 200) {
+                            eliminarArchivoTemporal(destino);
+                            Platform.runLater(() -> {
+                                alertaDescarga.close();
+                                mostrarError(
+                                        "No se encontró el instalador en "
+                                                + "GitHub. Código HTTP: "
+                                                + response.statusCode());
+                            });
+                            return;
+                        }
 
-                    // Ordenamos a Windows ejecutar el instalador temporal
-                    new ProcessBuilder(rutaTemporal.toString()).start();
+                        try {
+                            if (Files.size(destino) == 0) {
+                                throw new IOException(
+                                        "GitHub devolvió un instalador vacío.");
+                            }
 
-                    // Suicidio del proceso Java actual para soltar los permisos de la carpeta
-                    System.exit(0);
-                } else {
-                    Platform.runLater(() -> {
-                        alertaDescarga.close();
-                        mostrarError("No se encontró el instalador en GitHub. Código HTTP: " + response.statusCode());
+                            Runtime.getRuntime().exec(
+                                    new String[]{destino.toString()});
+
+                            Platform.runLater(alertaDescarga::close);
+                            Platform.exit();
+                            System.exit(0);
+                        } catch (IOException | SecurityException e) {
+                            eliminarArchivoTemporal(destino);
+                            Platform.runLater(() -> {
+                                alertaDescarga.close();
+                                mostrarError(
+                                        "No se pudo iniciar el instalador: "
+                                                + e.getMessage());
+                            });
+                        }
                     });
-                }
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    alertaDescarga.close();
-                    mostrarError("Error de conexión durante la descarga: " + e.getMessage());
-                });
+        } catch (IOException | IllegalArgumentException e) {
+            if (archivoTemporal != null) {
+                eliminarArchivoTemporal(archivoTemporal);
             }
-        }).start();
+            alertaDescarga.close();
+            mostrarError(
+                    "No se pudo preparar la descarga: " + e.getMessage());
+        }
+    }
+
+    private static boolean esVersionValida(String version) {
+        return version != null
+                && version.matches(
+                        "v?\\d+(\\.\\d+){1,3}([+-][A-Za-z0-9.-]+)?");
+    }
+
+    private static void eliminarArchivoTemporal(Path archivo) {
+        try {
+            Files.deleteIfExists(archivo);
+        } catch (IOException e) {
+            System.err.println(
+                    "No se pudo eliminar el instalador temporal: "
+                            + e.getMessage());
+        }
+    }
+
+    private static String mensajeError(Throwable error) {
+        Throwable causa = error instanceof CompletionException
+                && error.getCause() != null
+                ? error.getCause()
+                : error;
+        return causa.getMessage() == null
+                ? causa.getClass().getSimpleName()
+                : causa.getMessage();
     }
 
     private static void mostrarError(String msj) {

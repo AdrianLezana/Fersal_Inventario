@@ -26,6 +26,8 @@
                          prefWidth="220.0"/>
             <TableColumn fx:id="colDescripcion" text="Descripción"
                          prefWidth="430.0"/>
+            <TableColumn fx:id="colEstado" text="Estado"
+                         prefWidth="100.0"/>
         </columns>
     </TableView>
 
@@ -39,4 +41,9 @@
                          prefWidth="180.0"/>
         </columns>
     </TableView>
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Anular Orden"
+                onAction="#anularOrdenSeleccionada"
+                style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+    </HBox>
 </VBox>
