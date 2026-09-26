@@ -9,6 +9,12 @@ public class OrdenCompra {
     private Integer proveedorId;
     private Integer usuarioId;
     private LocalDateTime fechaIngreso;
+    private String fechaTexto;
+    private String nombreProveedor;
+    private String numeroDocumento;
+    private Double neto;
+    private Double iva;
+    private Double total;
 
     public OrdenCompra() {
     }
@@ -59,6 +65,54 @@ public class OrdenCompra {
 
     public void setFechaIngreso(LocalDateTime fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
+    }
+
+    public String getFechaTexto() {
+        return fechaTexto;
+    }
+
+    public void setFechaTexto(String fechaTexto) {
+        this.fechaTexto = fechaTexto;
+    }
+
+    public String getNombreProveedor() {
+        return nombreProveedor;
+    }
+
+    public void setNombreProveedor(String nombreProveedor) {
+        this.nombreProveedor = nombreProveedor;
+    }
+
+    public String getNumeroDocumento() {
+        return numeroDocumento;
+    }
+
+    public void setNumeroDocumento(String numeroDocumento) {
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public Double getNeto() {
+        return neto;
+    }
+
+    public void setNeto(Double neto) {
+        this.neto = neto;
+    }
+
+    public Double getIva() {
+        return iva;
+    }
+
+    public void setIva(Double iva) {
+        this.iva = iva;
+    }
+
+    public Double getTotal() {
+        return total;
+    }
+
+    public void setTotal(Double total) {
+        this.total = total;
     }
 
 }

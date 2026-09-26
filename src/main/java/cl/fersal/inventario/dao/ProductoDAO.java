@@ -15,8 +15,8 @@ public class ProductoDAO {
     public Producto crear(Producto producto) {
         String sqlProducto = "INSERT INTO productos (codigo_interno, categoria_id, nombre, dimensiones, " +
                 "unidad_medida, ubicacion, stock_actual, precio_venta, precio_venta_metro, " +
-                "precio_trabajado_metro, costo_promedio, usuario_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "precio_trabajado_metro, costo_promedio, estado, usuario_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String sqlMovimiento = "INSERT INTO movimientos_inventario " +
                 "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -70,8 +70,16 @@ public class ProductoDAO {
      * READ: Obtiene todo el inventario.
      */
     public List<Producto> obtenerTodos() {
+        return obtenerTodos(false);
+    }
+
+    public List<Producto> obtenerTodos(boolean incluirInactivos) {
         List<Producto> productos = new ArrayList<>();
-        String sql = "SELECT * FROM productos";
+        String sql = incluirInactivos
+                ? "SELECT * FROM productos ORDER BY nombre"
+                : "SELECT * FROM productos "
+                        + "WHERE COALESCE(estado, 'ACTIVO') = 'ACTIVO' "
+                        + "ORDER BY nombre";
 
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -104,7 +112,7 @@ public class ProductoDAO {
         String sqlProducto = "UPDATE productos SET codigo_interno = ?, categoria_id = ?, nombre = ?, " +
                 "dimensiones = ?, unidad_medida = ?, ubicacion = ?, stock_actual = ?, " +
                 "precio_venta = ?, precio_venta_metro = ?, precio_trabajado_metro = ?, " +
-                "costo_promedio = ?, usuario_id = ? WHERE id = ?";
+                "costo_promedio = ?, estado = ?, usuario_id = ? WHERE id = ?";
         String sqlStockAnterior = "SELECT stock_actual FROM productos WHERE id = ?";
         String sqlMovimiento = "INSERT INTO movimientos_inventario " +
                 "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
@@ -133,7 +141,7 @@ public class ProductoDAO {
             int filasAfectadas;
             try (PreparedStatement pstmt = conn.prepareStatement(sqlProducto)) {
                 asignarParametros(pstmt, producto);
-                pstmt.setInt(13, producto.getId());
+                pstmt.setInt(14, producto.getId());
                 filasAfectadas = pstmt.executeUpdate();
             }
 
@@ -194,16 +202,23 @@ public class ProductoDAO {
         return usuarioId == null ? "SISTEMA" : "USUARIO_ID_" + usuarioId;
     }
 
-    /**
-     * DELETE: Elimina un producto por su ID.
-     */
     public boolean eliminar(int id) {
-        String sql = "DELETE FROM productos WHERE id = ?";
+        return cambiarEstado(id, "INACTIVO");
+    }
+
+    public boolean cambiarEstado(int id, String estado) {
+        if (!"ACTIVO".equals(estado) && !"INACTIVO".equals(estado)) {
+            throw new IllegalArgumentException(
+                    "El estado debe ser ACTIVO o INACTIVO.");
+        }
+
+        String sql = "UPDATE productos SET estado = ? WHERE id = ?";
 
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setString(1, estado);
+            pstmt.setInt(2, id);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error al eliminar producto: " + e.getMessage());
@@ -231,7 +246,10 @@ public class ProductoDAO {
         pstmt.setObject(9, producto.getPrecioVentaMetro(), Types.REAL);
         pstmt.setObject(10, producto.getPrecioTrabajadoMetro(), Types.REAL);
         pstmt.setDouble(11, producto.getCostoPromedio() != null ? producto.getCostoPromedio() : 0.0);
-        pstmt.setInt(12, producto.getUsuarioId()); // Llave foránea (obligatoria para trazabilidad)
+        pstmt.setString(12, producto.getEstado() == null
+                ? "ACTIVO"
+                : producto.getEstado());
+        pstmt.setInt(13, producto.getUsuarioId()); // Llave foránea (obligatoria para trazabilidad)
     }
 
     /**
@@ -261,6 +279,7 @@ public class ProductoDAO {
         if (!rs.wasNull()) p.setPrecioTrabajadoMetro(precioTrabajado);
 
         p.setCostoPromedio(rs.getDouble("costo_promedio"));
+        p.setEstado(rs.getString("estado"));
         p.setUsuarioId(rs.getInt("usuario_id"));
 
         return p;

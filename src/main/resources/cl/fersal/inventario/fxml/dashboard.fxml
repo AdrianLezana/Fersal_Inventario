@@ -4,7 +4,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="cl.fersal.inventario.controller.DashboardController"
-            prefHeight="600.0" prefWidth="900.0">
+            prefHeight="800.0" prefWidth="1200.0">
 
     <!-- Panel Superior: Título y Usuario -->
     <top>
@@ -22,6 +22,8 @@
             <HBox spacing="10.0">
                 <TextField fx:id="txtBuscar" promptText="Buscar producto por nombre o código..." HBox.hgrow="ALWAYS" />
                 <Button text="Buscar" />
+                <CheckBox fx:id="chkMostrarInactivos"
+                          text="Mostrar inactivos"/>
             </HBox>
 
             <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS">
@@ -46,13 +48,21 @@
             <Label text="Acciones" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
             <!-- Cambiamos MAX_VALUE por Infinity -->
             <Button text="Nuevo Producto" maxWidth="Infinity" onAction="#abrirFormularioProducto" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
-            <Button text="Ingresar Compra" maxWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+            <Button text="Ingresar Compra" maxWidth="Infinity"
+                    onAction="#abrirOrdenCompra"
+                    style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+            <Button text="Historial de Compras" maxWidth="Infinity"
+                    onAction="#abrirHistorialCompras"
+                    style="-fx-background-color: #1f618d; -fx-text-fill: white;"/>
             <Button text="Nueva Orden Trabajo" maxWidth="Infinity"
                     onAction="#abrirOrdenTrabajo"
                     style="-fx-background-color: #f39c12; -fx-text-fill: white;"/>
             <Button text="Gestionar Trabajadores" maxWidth="Infinity"
                     onAction="#abrirGestionTrabajadores"
                     style="-fx-background-color: #16a085; -fx-text-fill: white;"/>
+            <Button text="Gestionar Proveedores" maxWidth="Infinity"
+                    onAction="#abrirGestionProveedores"
+                    style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
             <Button text="Historial de Órdenes" maxWidth="Infinity"
                     onAction="#abrirHistorialOrdenes"
                     style="-fx-background-color: #34495e; -fx-text-fill: white;"/>
@@ -63,6 +73,9 @@
             <Button text="Editar Seleccionado" maxWidth="Infinity" onAction="#editarSeleccionado"/>
             <Button text="Ajustar Stock" maxWidth="Infinity" onAction="#ajustarStockSeleccionado"
                     style="-fx-background-color: #8e44ad; -fx-text-fill: white;"/>
+            <Button text="Reactivar Seleccionado" maxWidth="Infinity"
+                    onAction="#reactivarSeleccionado"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
             <Button text="Eliminar Seleccionado" maxWidth="Infinity" onAction="#eliminarSeleccionado" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
         </VBox>
     </right>

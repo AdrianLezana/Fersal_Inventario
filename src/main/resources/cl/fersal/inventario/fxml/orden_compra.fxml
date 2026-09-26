@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.OrdenCompraController"
+      prefWidth="900.0" prefHeight="650.0">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+
+    <Label text="Nueva Orden de Compra"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints minWidth="145.0"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Proveedor:"
+               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbProveedor" maxWidth="Infinity"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="N° Documento:"
+               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNumeroDocumento"
+                   promptText="Factura o documento de compra"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label text="Productos de la compra"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <GridPane hgap="10.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints minWidth="100.0"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints minWidth="85.0"/>
+            <ColumnConstraints minWidth="115.0"/>
+            <ColumnConstraints minWidth="85.0"/>
+            <ColumnConstraints minWidth="115.0"/>
+            <ColumnConstraints minWidth="140.0"/>
+        </columnConstraints>
+        <Label text="Producto:"
+               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <HBox spacing="8.0"
+              GridPane.rowIndex="0"
+              GridPane.columnIndex="1"
+              GridPane.columnSpan="6">
+            <ComboBox fx:id="cmbProducto"
+                      maxWidth="Infinity"
+                      HBox.hgrow="ALWAYS"/>
+            <Button text="Nuevo Producto"
+                    onAction="#nuevoProducto"/>
+        </HBox>
+        <Label text="Cantidad:"
+               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCantidad"
+                   promptText="0"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Precio:"
+               GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtPrecioUnitario"
+                   promptText="0.00"
+                   GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+        <Button text="Agregar"
+                onAction="#agregarProducto"
+                GridPane.rowIndex="1"
+                GridPane.columnIndex="4"
+                GridPane.columnSpan="3"/>
+    </GridPane>
+
+    <TableView fx:id="tablaDetalles" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colProducto"
+                         text="Producto"
+                         prefWidth="430.0"/>
+            <TableColumn fx:id="colCantidad"
+                         text="Cantidad"
+                         prefWidth="120.0"/>
+            <TableColumn fx:id="colPrecio"
+                         text="Precio Unitario"
+                         prefWidth="140.0"/>
+            <TableColumn fx:id="colSubtotal"
+                         text="Subtotal"
+                         prefWidth="140.0"/>
+        </columns>
+    </TableView>
+
+    <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
+
+    <GridPane hgap="12.0" vgap="8.0" alignment="CENTER_RIGHT">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints minWidth="120.0"/>
+            <ColumnConstraints minWidth="130.0"/>
+        </columnConstraints>
+        <Label text="Neto:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="lblNeto" text="0.00"
+               GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <Label text="IVA (19%):" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label fx:id="lblIva" text="0.00"
+               GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <Label text="Total:" GridPane.rowIndex="2" GridPane.columnIndex="1"
+               style="-fx-font-weight: bold;"/>
+        <Label fx:id="lblTotal" text="0.00"
+               GridPane.rowIndex="2" GridPane.columnIndex="2"
+               style="-fx-font-weight: bold;"/>
+    </GridPane>
+
+    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+        <Button text="Quitar producto" onAction="#quitarProducto"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Cancelar" onAction="#cerrarVentana"/>
+        <Button text="Confirmar Compra"
+                onAction="#confirmarCompra"
+                defaultButton="true"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>

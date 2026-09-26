@@ -25,6 +25,7 @@ public class DashboardController {
 
     @FXML private Label lblUsuarioActual;
     @FXML private TextField txtBuscar;
+    @FXML private CheckBox chkMostrarInactivos;
 
     @FXML private TableView<Producto> tablaProductos;
     @FXML private TableColumn<Producto, String> colCodigo;
@@ -54,12 +55,16 @@ public class DashboardController {
         colPrecioMetro.setCellValueFactory(new PropertyValueFactory<>("precioVentaMetro"));
         colPrecioTrabajado.setCellValueFactory(new PropertyValueFactory<>("precioTrabajadoMetro"));
 
+        chkMostrarInactivos.selectedProperty().addListener(
+                (observable, anterior, actual) -> cargarDatos());
         cargarDatos();
     }
 
     private void cargarDatos() {
         // 1. Obtenemos los datos desde la base de datos
-        List<Producto> productosBD = productoDAO.obtenerTodos();
+        List<Producto> productosBD = productoDAO.obtenerTodos(
+                chkMostrarInactivos != null
+                        && chkMostrarInactivos.isSelected());
         listaProductos = FXCollections.observableArrayList(productosBD);
 
         // 2. En lugar de pasar la lista directamente a la tabla, configuramos el filtro
@@ -87,6 +92,54 @@ public class DashboardController {
 
         } catch (java.io.IOException e) {
             System.err.println("Error al abrir el formulario: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void abrirOrdenCompra(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/orden_compra.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Nueva Orden de Compra");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(900);
+            stage.setMinHeight(650);
+            stage.showAndWait();
+
+            cargarDatos();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir la Orden de Compra:\n"
+                            + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void abrirHistorialCompras(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/historial_compras.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Historial de Compras");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(1050);
+            stage.setMinHeight(680);
+            stage.showAndWait();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el historial de compras:\n"
+                            + e.getMessage());
         }
     }
 
@@ -250,6 +303,29 @@ public class DashboardController {
         }
     }
 
+    @FXML
+    private void abrirGestionProveedores(ActionEvent event) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/proveedores.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Fersal Inventario - Proveedores");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setMinWidth(820);
+            stage.setMinHeight(520);
+            stage.showAndWait();
+        } catch (IOException e) {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el mantenedor de proveedores:\n"
+                            + e.getMessage());
+        }
+    }
+
     private Path asegurarExtension(Path ruta, String extension) {
         String nombre = ruta.getFileName().toString();
         if (nombre.toLowerCase().endsWith(extension)) {
@@ -399,10 +475,34 @@ public class DashboardController {
         // 3. Ejecutar la eliminación si presiona OK
         if (alerta.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             if (productoDAO.eliminar(seleccionado.getId())) {
-                listaProductos.remove(seleccionado); // Lo quitamos visualmente de la tabla sin consultar la BD de nuevo
+                cargarDatos();
             } else {
                 mostrarAlerta("Error", "Ocurrió un problema al intentar eliminar el producto de la base de datos.");
             }
+        }
+    }
+
+    @FXML
+    private void reactivarSeleccionado(ActionEvent event) {
+        Producto seleccionado =
+                tablaProductos.getSelectionModel().getSelectedItem();
+
+        if (seleccionado == null) {
+            mostrarAlerta(
+                    "Advertencia",
+                    "Debe seleccionar un producto para reactivarlo.");
+            return;
+        }
+
+        if (productoDAO.cambiarEstado(seleccionado.getId(), "ACTIVO")) {
+            cargarDatos();
+            mostrarAlerta(
+                    "Producto reactivado",
+                    "El producto volvió a estar disponible en el inventario.");
+        } else {
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo reactivar el producto seleccionado.");
         }
     }
 

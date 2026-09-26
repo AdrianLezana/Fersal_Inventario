@@ -6,6 +6,7 @@ public class Proveedor {
     private String nombre;
     private String rut;
     private String telefono;
+    private String email;
     private Integer usuarioId; // Trazabilidad
 
     public Proveedor() {}
@@ -15,6 +16,21 @@ public class Proveedor {
         this.nombre = nombre;
         this.rut = rut;
         this.telefono = telefono;
+        this.usuarioId = usuarioId;
+    }
+
+    public Proveedor(
+            Integer id,
+            String nombre,
+            String rut,
+            String telefono,
+            String email,
+            Integer usuarioId) {
+        this.id = id;
+        this.nombre = nombre;
+        this.rut = rut;
+        this.telefono = telefono;
+        this.email = email;
         this.usuarioId = usuarioId;
     }
 
@@ -50,12 +66,25 @@ public class Proveedor {
         this.telefono = telefono;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Integer getUsuarioId() {
         return usuarioId;
     }
 
     public void setUsuarioId(Integer usuarioId) {
         this.usuarioId = usuarioId;
+    }
+
+    @Override
+    public String toString() {
+        return nombre + (rut == null || rut.isBlank() ? "" : " (" + rut + ")");
     }
 
 }

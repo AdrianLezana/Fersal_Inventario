@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cl.fersal.inventario.controller.HistorialComprasController"
+      prefWidth="1050.0" prefHeight="680.0">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+
+    <Label text="Historial de Órdenes de Compra"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <Label text="Órdenes de compra"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TableView fx:id="tablaOrdenes" prefHeight="360.0"
+               VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50.0"/>
+            <TableColumn fx:id="colFecha" text="Fecha" prefWidth="145.0"/>
+            <TableColumn fx:id="colProveedor" text="Proveedor" prefWidth="180.0"/>
+            <TableColumn fx:id="colDocumento" text="N° Factura" prefWidth="120.0"/>
+            <TableColumn fx:id="colNeto" text="Neto" prefWidth="110.0"/>
+            <TableColumn fx:id="colIva" text="IVA" prefWidth="100.0"/>
+            <TableColumn fx:id="colTotal" text="Total" prefWidth="120.0"/>
+        </columns>
+    </TableView>
+
+    <Label text="Productos de la compra seleccionada"
+           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TableView fx:id="tablaDetalle" prefHeight="230.0">
+        <columns>
+            <TableColumn fx:id="colProducto"
+                         text="Nombre del Producto"
+                         prefWidth="500.0"/>
+            <TableColumn fx:id="colCantidad"
+                         text="Cantidad"
+                         prefWidth="180.0"/>
+            <TableColumn fx:id="colPrecioUnitario"
+                         text="Precio Unitario"
+                         prefWidth="200.0"/>
+        </columns>
+    </TableView>
+</VBox>
