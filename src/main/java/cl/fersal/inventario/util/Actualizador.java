@@ -16,12 +16,10 @@ import java.util.concurrent.CompletionException;
 
 public class Actualizador {
 
-    public static final String VERSION_LOCAL = "1.0"; // Cambiar manualmente después de cada nueva implementación
+    public static final String VERSION_LOCAL = "1.1.2"; // Cambiar manualmente después de cada nueva implementación
     private static final String URL_VERSION_REMOTA = "https://raw.githubusercontent.com/AdrianLezana/Fersal_Inventario/main/version.txt";
     private static final String URL_DESCARGA_RELEASE =
             "https://github.com/AdrianLezana/Fersal_Inventario/releases/download/";
-    private static final String NOMBRE_INSTALADOR =
-            "FersalInventario.exe";
 
     public static void verificarActualizaciones() {
         HttpClient client = HttpClient.newBuilder()
@@ -86,9 +84,11 @@ public class Actualizador {
 
             URI uriDescarga = URI.create(
                     URL_DESCARGA_RELEASE
+                            + "v"
                             + nuevaVersion
-                            + "/"
-                            + NOMBRE_INSTALADOR);
+                            + "/FersalInventario-"
+                            + nuevaVersion
+                            + ".exe");
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(15))
                     .followRedirects(HttpClient.Redirect.ALWAYS)
