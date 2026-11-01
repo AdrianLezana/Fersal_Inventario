@@ -10,6 +10,9 @@
       fx:controller="cl.fersal.inventario.controller.OrdenCompraController"
       stylesheets="@styles.css"
       prefWidth="900.0" prefHeight="650.0">
+    <fx:define>
+        <ToggleGroup fx:id="grupoDescuento"/>
+    </fx:define>
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
@@ -97,6 +100,27 @@
         </columns>
     </TableView>
 
+    <GridPane hgap="8.0" vgap="6.0">
+        <columnConstraints>
+            <ColumnConstraints minWidth="100.0"/>
+            <ColumnConstraints minWidth="140.0"/>
+            <ColumnConstraints minWidth="100.0"/>
+            <ColumnConstraints minWidth="100.0"/>
+        </columnConstraints>
+        <Label text="Descuento:"
+               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtDescuento"
+                   promptText="0.00"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <RadioButton fx:id="rbMonto" text="Monto"
+                     toggleGroup="$grupoDescuento"
+                     selected="true"
+                     GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <RadioButton fx:id="rbPorcentaje" text="Porcentaje"
+                     toggleGroup="$grupoDescuento"
+                     GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+    </GridPane>
+
     <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
 
     <GridPane hgap="12.0" vgap="8.0" alignment="CENTER_RIGHT">
@@ -105,16 +129,22 @@
             <ColumnConstraints minWidth="120.0"/>
             <ColumnConstraints minWidth="130.0"/>
         </columnConstraints>
-        <Label text="Neto:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-        <Label fx:id="lblNeto" text="0.00"
+        <Label text="Subtotal:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="lblSubtotal" text="0.00"
                GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <Label text="IVA (19%):" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-        <Label fx:id="lblIva" text="0.00"
+        <Label text="Descuento:" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label fx:id="lblDescuento" text="0.00"
                GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <Label text="Total:" GridPane.rowIndex="2" GridPane.columnIndex="1"
+        <Label text="Neto:" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label fx:id="lblNeto" text="0.00"
+               GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+        <Label text="IVA (19%):" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <Label fx:id="lblIva" text="0.00"
+               GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+        <Label text="Total:" GridPane.rowIndex="4" GridPane.columnIndex="1"
                style="-fx-font-weight: bold;"/>
         <Label fx:id="lblTotal" text="0.00"
-               GridPane.rowIndex="2" GridPane.columnIndex="2"
+               GridPane.rowIndex="4" GridPane.columnIndex="2"
                style="-fx-font-weight: bold;"/>
     </GridPane>
 

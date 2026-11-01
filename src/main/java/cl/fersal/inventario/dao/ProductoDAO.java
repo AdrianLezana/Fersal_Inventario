@@ -2,6 +2,7 @@ package cl.fersal.inventario.dao;
 
 import cl.fersal.inventario.config.ConexionDB;
 import cl.fersal.inventario.model.Producto;
+import cl.fersal.inventario.util.FechaHoraChile;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -18,8 +19,8 @@ public class ProductoDAO {
                 "precio_trabajado_metro, costo_promedio, estado, usuario_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String sqlMovimiento = "INSERT INTO movimientos_inventario " +
-                "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
-                "VALUES (?, ?, ?, ?, ?)";
+                "(fecha, producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         Connection conn = ConexionDB.conectar();
         if (conn == null) {
@@ -115,8 +116,8 @@ public class ProductoDAO {
                 "costo_promedio = ?, estado = ?, usuario_id = ? WHERE id = ?";
         String sqlStockAnterior = "SELECT stock_actual FROM productos WHERE id = ?";
         String sqlMovimiento = "INSERT INTO movimientos_inventario " +
-                "(producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
-                "VALUES (?, ?, ?, ?, ?)";
+                "(fecha, producto_id, cantidad_afectada, tipo_movimiento, costo_unitario, responsable) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         Connection conn = ConexionDB.conectar();
         if (conn == null) {
@@ -189,11 +190,12 @@ public class ProductoDAO {
             Double costoUnitario,
             String responsable) throws SQLException {
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, productoId);
-            pstmt.setDouble(2, cantidadAfectada);
-            pstmt.setString(3, tipoMovimiento);
-            pstmt.setDouble(4, costoUnitario != null ? costoUnitario : 0.0);
-            pstmt.setString(5, responsable);
+            pstmt.setString(1, FechaHoraChile.ahora());
+            pstmt.setInt(2, productoId);
+            pstmt.setDouble(3, cantidadAfectada);
+            pstmt.setString(4, tipoMovimiento);
+            pstmt.setDouble(5, costoUnitario != null ? costoUnitario : 0.0);
+            pstmt.setString(6, responsable);
             pstmt.executeUpdate();
         }
     }

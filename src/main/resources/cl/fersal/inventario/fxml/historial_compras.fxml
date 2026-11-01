@@ -17,6 +17,8 @@
            style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
     <Label text="Facturas"
            style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TextField fx:id="txtBuscar"
+               promptText="Buscar por ID, N° factura, proveedor o RUT..."/>
     <TableView fx:id="tablaOrdenes" prefHeight="360.0"
                VBox.vgrow="ALWAYS">
         <columns>

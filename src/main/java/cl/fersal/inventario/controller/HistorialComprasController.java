@@ -4,16 +4,22 @@ import cl.fersal.inventario.dao.OrdenCompraDAO;
 import cl.fersal.inventario.model.DetalleOrdenCompra;
 import cl.fersal.inventario.model.OrdenCompra;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.Locale;
 import java.util.List;
 
 public class HistorialComprasController {
+    @FXML private TextField txtBuscar;
     @FXML private TableView<OrdenCompra> tablaOrdenes;
     @FXML private TableColumn<OrdenCompra, Integer> colId;
     @FXML private TableColumn<OrdenCompra, String> colFecha;
@@ -30,6 +36,9 @@ public class HistorialComprasController {
     @FXML private TableColumn<DetalleOrdenCompra, Double> colPrecioUnitario;
 
     private final OrdenCompraDAO ordenCompraDAO = new OrdenCompraDAO();
+    private final ObservableList<OrdenCompra> ordenes =
+            FXCollections.observableArrayList();
+    private FilteredList<OrdenCompra> ordenesFiltradas;
 
     @FXML
     public void initialize() {
@@ -60,6 +69,16 @@ public class HistorialComprasController {
         colPrecioUnitario.setCellValueFactory(
                 new PropertyValueFactory<>("precio"));
 
+        ordenesFiltradas = new FilteredList<>(ordenes, orden -> true);
+        SortedList<OrdenCompra> ordenesOrdenadas =
+                new SortedList<>(ordenesFiltradas);
+        ordenesOrdenadas.comparatorProperty().bind(
+                tablaOrdenes.comparatorProperty());
+        tablaOrdenes.setItems(ordenesOrdenadas);
+        txtBuscar.textProperty().addListener(
+                (observable, anterior, texto) ->
+                        filtrarOrdenes(texto));
+
         tablaOrdenes.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, anterior, seleccionada) ->
@@ -70,9 +89,7 @@ public class HistorialComprasController {
 
     public void cargarOrdenes() {
         try {
-            tablaOrdenes.setItems(
-                    FXCollections.observableArrayList(
-                            ordenCompraDAO.obtenerOrdenes()));
+            ordenes.setAll(ordenCompraDAO.obtenerOrdenes());
             tablaDetalle.setItems(
                     FXCollections.observableArrayList());
         } catch (IllegalStateException e) {
@@ -80,6 +97,22 @@ public class HistorialComprasController {
                     "No se pudo cargar el historial de compras.",
                     e);
         }
+    }
+
+    private void filtrarOrdenes(String texto) {
+        String consulta = texto == null
+                ? ""
+                : texto.trim().toLowerCase(Locale.ROOT);
+        ordenesFiltradas.setPredicate(orden -> consulta.isEmpty()
+                || contiene(String.valueOf(orden.getId()), consulta)
+                || contiene(orden.getNumeroDocumento(), consulta)
+                || contiene(orden.getNombreProveedor(), consulta)
+                || contiene(orden.getRutProveedor(), consulta));
+    }
+
+    private boolean contiene(String valor, String consulta) {
+        return valor != null
+                && valor.toLowerCase(Locale.ROOT).contains(consulta);
     }
 
     private void cargarDetalle(OrdenCompra orden) {

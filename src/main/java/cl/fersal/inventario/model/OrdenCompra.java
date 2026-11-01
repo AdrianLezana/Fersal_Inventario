@@ -11,6 +11,7 @@ public class OrdenCompra {
     private LocalDateTime fechaIngreso;
     private String fechaTexto;
     private String nombreProveedor;
+    private String rutProveedor;
     private String numeroDocumento;
     private Double neto;
     private Double iva;
@@ -82,6 +83,14 @@ public class OrdenCompra {
 
     public void setNombreProveedor(String nombreProveedor) {
         this.nombreProveedor = nombreProveedor;
+    }
+
+    public String getRutProveedor() {
+        return rutProveedor;
+    }
+
+    public void setRutProveedor(String rutProveedor) {
+        this.rutProveedor = rutProveedor;
     }
 
     public String getNumeroDocumento() {

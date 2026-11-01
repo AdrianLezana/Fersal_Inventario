@@ -27,6 +27,11 @@ public class ProductoFormController {
     private final ProductoService productoService = new ProductoService();
     private Producto productoEdicion = null;
 
+    public void bloquearStockInicial() {
+        txtStock.setText("0");
+        txtStock.setDisable(true);
+    }
+
     public void cargarDatosProducto(Producto producto) {
         this.productoEdicion = producto;
 

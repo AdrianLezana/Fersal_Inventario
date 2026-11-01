@@ -18,6 +18,8 @@
 
     <Label text="Órdenes registradas"
            style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+    <TextField fx:id="txtBuscar"
+               promptText="Buscar por ID, trabajador, RUT o descripción..."/>
     <TableView fx:id="tablaOrdenes" prefHeight="300.0"
                VBox.vgrow="ALWAYS">
         <columns>
