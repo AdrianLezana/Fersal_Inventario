@@ -35,6 +35,8 @@ public class App extends Application {
         stage.setTitle("Fersal Inventario - Acceso");
         stage.setScene(scene);
         stage.setResizable(true); // Bloqueamos el redimensionamiento para el login
+        stage.sizeToScene();
+        stage.setMinWidth(350);
         stage.show();
     }
 
@@ -75,15 +77,31 @@ public class App extends Application {
     }
 
     /**
-     * Método global para cambiar de pantallas sin abrir múltiples ventanas.
+     * Método global para cambiar de pantallas ajustándose al contenido real.
      */
-    public static void cambiarEscena(String rutaFxml, String titulo, int ancho, int alto) throws IOException {
+    public static void cambiarEscena(String rutaFxml, String titulo, int anchoMinimo, int altoMinimo) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(rutaFxml));
         Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root, ancho, alto);
+
+        // Al crear la escena SIN números, JavaFX usa el tamaño preferido del FXML
+        Scene scene = new Scene(root);
 
         escenarioPrincipal.setTitle(titulo);
         escenarioPrincipal.setScene(scene);
+
+        // Aseguramos que la ventana se pueda redimensionar
+        escenarioPrincipal.setResizable(true);
+
+        // Límites mínimos para que el usuario no pueda achicarla de más
+        escenarioPrincipal.setMinWidth(anchoMinimo);
+        escenarioPrincipal.setMinHeight(altoMinimo);
+
+        // Auto-ajustar al contenido de los botones/tablas
+        escenarioPrincipal.sizeToScene();
+
+        // Centrar en la pantalla
+        escenarioPrincipal.centerOnScreen();
+
     }
 
     public static void main(String[] args) {

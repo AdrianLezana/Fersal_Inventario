@@ -22,6 +22,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import org.controlsfx.control.SearchableComboBox;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.List;
 public class OrdenCompraController {
     @FXML private ComboBox<Proveedor> cmbProveedor;
     @FXML private TextField txtNumeroDocumento;
-    @FXML private ComboBox<Producto> cmbProducto;
+    @FXML private SearchableComboBox<Producto> cmbProductos;
     @FXML private TextField txtCantidad;
     @FXML private TextField txtPrecioUnitario;
     @FXML private TableView<DetalleOrdenCompra> tablaDetalles;
@@ -50,6 +52,31 @@ public class OrdenCompraController {
 
     @FXML
     public void initialize() {
+        tablaDetalles.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY);
+        cmbProductos.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Producto producto) {
+                if (producto == null) {
+                    return "";
+                }
+                String codigo = producto.getCodigoInterno();
+                String nombre = producto.getNombre();
+                if (codigo == null || codigo.isBlank()) {
+                    return nombre == null ? "" : nombre;
+                }
+                if (nombre == null || nombre.isBlank()) {
+                    return codigo;
+                }
+                return codigo + " - " + nombre;
+            }
+
+            @Override
+            public Producto fromString(String texto) {
+                return null;
+            }
+        });
+
         colProducto.setCellValueFactory(
                 new PropertyValueFactory<>("nombreProducto"));
         colCantidad.setCellValueFactory(
@@ -63,7 +90,7 @@ public class OrdenCompraController {
         cmbProveedor.setItems(
                 FXCollections.observableArrayList(
                         proveedorDAO.obtenerTodos()));
-        cmbProducto.setItems(
+        cmbProductos.setItems(
                 FXCollections.observableArrayList(
                         productoDAO.obtenerTodos()));
         actualizarTotales();
@@ -72,7 +99,7 @@ public class OrdenCompraController {
     @FXML
     private void agregarProducto(ActionEvent event) {
         try {
-            Producto producto = cmbProducto.getValue();
+            Producto producto = cmbProductos.getValue();
             if (producto == null) {
                 throw new IllegalArgumentException(
                         "Seleccione un producto.");
@@ -135,17 +162,17 @@ public class OrdenCompraController {
             Stage stage = new Stage();
             stage.setTitle("Nuevo Producto");
             stage.setScene(new javafx.scene.Scene(root));
-            stage.initOwner(cmbProducto.getScene().getWindow());
+            stage.initOwner(cmbProductos.getScene().getWindow());
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.showAndWait();
 
-            cmbProducto.setItems(
+            cmbProductos.setItems(
                     FXCollections.observableArrayList(
                             productoDAO.obtenerTodos()
                     )
             );
-            cmbProducto.getSelectionModel().clearSelection();
+            cmbProductos.getSelectionModel().clearSelection();
         } catch (IOException e) {
             mostrarError(
                     "No se pudo abrir el formulario de producto.",
@@ -190,8 +217,8 @@ public class OrdenCompraController {
             );
 
             mostrarAlerta(
-                    "Compra registrada",
-                    "La Orden de Compra #" + ordenId
+                    "Factura registrada",
+                    "La Factura #" + ordenId
                             + " fue registrada y el stock fue actualizado."
             );
             cerrarVentana(event);
@@ -241,7 +268,7 @@ public class OrdenCompraController {
     }
 
     private void limpiarEntradaProducto() {
-        cmbProducto.getSelectionModel().clearSelection();
+        cmbProductos.getSelectionModel().clearSelection();
         txtCantidad.clear();
         txtPrecioUnitario.clear();
     }

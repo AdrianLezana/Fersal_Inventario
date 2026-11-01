@@ -2,17 +2,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.SearchableComboBox?>
 
 <VBox spacing="12.0"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="cl.fersal.inventario.controller.OrdenCompraController"
+      stylesheets="@styles.css"
       prefWidth="900.0" prefHeight="650.0">
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
 
-    <Label text="Nueva Orden de Compra"
+    <Label text="Nueva Factura"
            style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
     <GridPane hgap="10.0" vgap="10.0">
@@ -24,10 +26,10 @@
                GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <ComboBox fx:id="cmbProveedor" maxWidth="Infinity"
                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-        <Label text="N° Documento:"
+        <Label text="N° Factura:"
                GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <TextField fx:id="txtNumeroDocumento"
-                   promptText="Factura o documento de compra"
+                   promptText="Número de factura"
                    GridPane.rowIndex="1" GridPane.columnIndex="1"/>
     </GridPane>
 
@@ -49,9 +51,9 @@
               GridPane.rowIndex="0"
               GridPane.columnIndex="1"
               GridPane.columnSpan="6">
-            <ComboBox fx:id="cmbProducto"
-                      maxWidth="Infinity"
-                      HBox.hgrow="ALWAYS"/>
+            <SearchableComboBox fx:id="cmbProductos"
+                                maxWidth="Infinity"
+                                HBox.hgrow="ALWAYS"/>
             <Button text="Nuevo Producto"
                     onAction="#nuevoProducto"/>
         </HBox>
@@ -114,7 +116,7 @@
         <Button text="Quitar producto" onAction="#quitarProducto"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="Cancelar" onAction="#cerrarVentana"/>
-        <Button text="Confirmar Compra"
+        <Button text="Confirmar Factura"
                 onAction="#confirmarCompra"
                 defaultButton="true"
                 style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>

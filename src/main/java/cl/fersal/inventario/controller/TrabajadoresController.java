@@ -32,6 +32,9 @@ public class TrabajadoresController {
 
     @FXML
     public void initialize() {
+        tablaTrabajadores.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY);
+
         colRut.setCellValueFactory(new PropertyValueFactory<>("rut"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCargo.setCellValueFactory(new PropertyValueFactory<>("cargo"));

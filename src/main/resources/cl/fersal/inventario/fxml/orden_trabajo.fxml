@@ -7,6 +7,7 @@
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="cl.fersal.inventario.controller.OrdenTrabajoController"
+      stylesheets="@styles.css"
       prefWidth="760.0" prefHeight="560.0">
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>

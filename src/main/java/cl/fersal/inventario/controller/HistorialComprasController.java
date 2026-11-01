@@ -33,6 +33,9 @@ public class HistorialComprasController {
 
     @FXML
     public void initialize() {
+        tablaOrdenes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablaDetalle.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         colId.setCellValueFactory(
                 new PropertyValueFactory<>("id"));
         colFecha.setCellValueFactory(
@@ -104,20 +107,20 @@ public class HistorialComprasController {
                 tablaOrdenes.getSelectionModel().getSelectedItem();
         if (seleccionada == null) {
             mostrarAviso(
-                    "Seleccione una orden de compra para anular.");
+                    "Seleccione una factura para anular.");
             return;
         }
 
         if ("ANULADA".equalsIgnoreCase(seleccionada.getEstado())) {
             mostrarAviso(
-                    "La orden de compra seleccionada ya está anulada.");
+                    "La factura seleccionada ya está anulada.");
             return;
         }
 
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar anulación");
         confirmacion.setHeaderText(
-                "¿Anular la Orden de Compra #"
+                "¿Anular la Factura #"
                         + seleccionada.getId() + "?");
         confirmacion.setContentText(
                 "Se descontarán del stock las cantidades ingresadas "
@@ -141,7 +144,7 @@ public class HistorialComprasController {
                             tablaOrdenes.getSelectionModel().select(orden));
         } catch (IllegalStateException e) {
             mostrarError(
-                    "No se pudo anular la orden de compra.",
+                    "No se pudo anular la factura.",
                     e);
         }
     }
