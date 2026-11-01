@@ -24,8 +24,14 @@
         </columnConstraints>
         <Label text="Proveedor:"
                GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cmbProveedor" maxWidth="Infinity"
-                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <HBox spacing="6.0"
+              GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <ComboBox fx:id="cmbProveedor" maxWidth="Infinity"
+                      HBox.hgrow="ALWAYS"/>
+            <Button text="+" onAction="#abrirNuevoProveedor"
+                    accessibleText="Nuevo proveedor"
+                    prefWidth="32.0"/>
+        </HBox>
         <Label text="N° Factura:"
                GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <TextField fx:id="txtNumeroDocumento"
@@ -117,6 +123,7 @@
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="Cancelar" onAction="#cerrarVentana"/>
         <Button text="Confirmar Factura"
+                fx:id="btnGuardar"
                 onAction="#confirmarCompra"
                 defaultButton="true"
                 style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>

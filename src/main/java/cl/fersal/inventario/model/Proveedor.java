@@ -3,17 +3,19 @@ package cl.fersal.inventario.model;
 public class Proveedor {
 
     private Integer id;
-    private String nombre;
     private String rut;
+    private String razonSocial;
+    private String giro;
     private String telefono;
     private String email;
-    private Integer usuarioId; // Trazabilidad
+    private String direccion;
+    private Integer usuarioId;
 
     public Proveedor() {}
 
     public Proveedor(Integer id, String nombre, String rut, String telefono, Integer usuarioId) {
         this.id = id;
-        this.nombre = nombre;
+        this.razonSocial = nombre;
         this.rut = rut;
         this.telefono = telefono;
         this.usuarioId = usuarioId;
@@ -27,11 +29,28 @@ public class Proveedor {
             String email,
             Integer usuarioId) {
         this.id = id;
-        this.nombre = nombre;
+        this.razonSocial = nombre;
         this.rut = rut;
         this.telefono = telefono;
         this.email = email;
         this.usuarioId = usuarioId;
+    }
+
+    public Proveedor(
+            Integer id,
+            String rut,
+            String razonSocial,
+            String giro,
+            String telefono,
+            String email,
+            String direccion) {
+        this.id = id;
+        this.rut = rut;
+        this.razonSocial = razonSocial;
+        this.giro = giro;
+        this.telefono = telefono;
+        this.email = email;
+        this.direccion = direccion;
     }
 
     public Integer getId() {
@@ -43,11 +62,27 @@ public class Proveedor {
     }
 
     public String getNombre() {
-        return nombre;
+        return razonSocial;
     }
 
     public void setNombre(String nombre) {
-        this.nombre = nombre;
+        this.razonSocial = nombre;
+    }
+
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+
+    public String getGiro() {
+        return giro;
+    }
+
+    public void setGiro(String giro) {
+        this.giro = giro;
     }
 
     public String getRut() {
@@ -74,6 +109,14 @@ public class Proveedor {
         this.email = email;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
     public Integer getUsuarioId() {
         return usuarioId;
     }
@@ -84,7 +127,8 @@ public class Proveedor {
 
     @Override
     public String toString() {
-        return nombre + (rut == null || rut.isBlank() ? "" : " (" + rut + ")");
+        return razonSocial
+                + (rut == null || rut.isBlank() ? "" : " (" + rut + ")");
     }
 
 }

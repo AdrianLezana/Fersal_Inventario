@@ -15,6 +15,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -43,6 +46,7 @@ public class OrdenCompraController {
     @FXML private Label lblIva;
     @FXML private Label lblTotal;
     @FXML private Label lblMensaje;
+    @FXML private Button btnGuardar;
 
     private final ProveedorDAO proveedorDAO = new ProveedorDAO();
     private final ProductoDAO productoDAO = new ProductoDAO();
@@ -87,13 +91,42 @@ public class OrdenCompraController {
                 new PropertyValueFactory<>("subtotal"));
         tablaDetalles.setItems(detalles);
 
-        cmbProveedor.setItems(
-                FXCollections.observableArrayList(
-                        proveedorDAO.obtenerTodos()));
+        cargarProveedores();
         cmbProductos.setItems(
                 FXCollections.observableArrayList(
                         productoDAO.obtenerTodos()));
         actualizarTotales();
+    }
+
+    private void cargarProveedores() {
+        cmbProveedor.setItems(
+                FXCollections.observableArrayList(
+                        proveedorDAO.obtenerTodos()));
+    }
+
+    @FXML
+    private void abrirNuevoProveedor(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    App.class.getResource(
+                            "/cl/fersal/inventario/fxml/proveedores.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Gestión de proveedores");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.initOwner(cmbProveedor.getScene().getWindow());
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
+            stage.setMinWidth(820);
+            stage.showAndWait();
+
+            cargarProveedores();
+        } catch (IOException | IllegalStateException e) {
+            mostrarError(
+                    "No se pudo abrir o actualizar la lista de proveedores.",
+                    e);
+        }
     }
 
     @FXML
@@ -203,6 +236,22 @@ public class OrdenCompraController {
     @FXML
     private void confirmarCompra(ActionEvent event) {
         try {
+            ButtonType si = new ButtonType(
+                    "Sí", ButtonBar.ButtonData.OK_DONE);
+            ButtonType no = new ButtonType(
+                    "No", ButtonBar.ButtonData.CANCEL_CLOSE);
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Confirmar factura");
+            confirmacion.setHeaderText(null);
+            confirmacion.setContentText(
+                    "¿Desea agregar más productos a esta factura?");
+            confirmacion.getButtonTypes().setAll(si, no);
+
+            ButtonType respuesta = confirmacion.showAndWait().orElse(si);
+            if (respuesta != no) {
+                return;
+            }
+
             double neto = calcularNeto();
             double iva = redondear(neto * 0.19);
             double total = redondear(neto + iva);
@@ -221,7 +270,7 @@ public class OrdenCompraController {
                     "La Factura #" + ordenId
                             + " fue registrada y el stock fue actualizado."
             );
-            cerrarVentana(event);
+            ((Stage) btnGuardar.getScene().getWindow()).close();
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblMensaje.setText(e.getMessage());
         }
