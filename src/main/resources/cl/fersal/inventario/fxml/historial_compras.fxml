@@ -7,14 +7,15 @@
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="cl.fersal.inventario.controller.HistorialComprasController"
+      stylesheets="@styles.css"
       prefWidth="1050.0" prefHeight="680.0">
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
 
-    <Label text="Historial de Órdenes de Compra"
+    <Label text="Historial de Facturas"
            style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-    <Label text="Órdenes de compra"
+    <Label text="Facturas"
            style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
     <TableView fx:id="tablaOrdenes" prefHeight="360.0"
                VBox.vgrow="ALWAYS">
@@ -46,7 +47,7 @@
         </columns>
     </TableView>
     <HBox alignment="CENTER_RIGHT">
-        <Button text="Anular Orden"
+        <Button text="Anular Factura"
                 onAction="#anularOrdenSeleccionada"
                 style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
     </HBox>

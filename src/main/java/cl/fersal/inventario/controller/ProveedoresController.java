@@ -32,6 +32,9 @@ public class ProveedoresController {
 
     @FXML
     public void initialize() {
+        tablaProveedores.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY);
+
         colRut.setCellValueFactory(new PropertyValueFactory<>("rut"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colTelefono.setCellValueFactory(

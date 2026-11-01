@@ -4,6 +4,7 @@ import cl.fersal.inventario.app.App;
 import cl.fersal.inventario.dao.ProductoDAO;
 import cl.fersal.inventario.model.Producto;
 import cl.fersal.inventario.service.ExportadorService;
+import cl.fersal.inventario.util.Actualizador;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,6 +25,7 @@ import java.util.List;
 public class DashboardController {
 
     @FXML private Label lblUsuarioActual;
+    @FXML private Label lblVersion;
     @FXML private TextField txtBuscar;
     @FXML private CheckBox chkMostrarInactivos;
 
@@ -46,6 +48,9 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        tablaProductos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        lblVersion.setText("Versión: " + Actualizador.VERSION_LOCAL);
+
         // Enlazar columnas con los atributos de la clase Producto
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigoInterno"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -105,6 +110,8 @@ public class DashboardController {
             // Esto hace que la ventana del formulario bloquee el dashboard hasta que se cierre
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.setResizable(false);
+            stage.sizeToScene();
+            stage.setMinWidth(550);
 
             stage.showAndWait(); // Pausa la ejecución aquí hasta que la ventana se cierre
 
@@ -124,9 +131,10 @@ public class DashboardController {
             javafx.scene.Parent root = loader.load();
 
             javafx.stage.Stage stage = new javafx.stage.Stage();
-            stage.setTitle("Fersal Inventario - Nueva Orden de Compra");
+            stage.setTitle("Fersal Inventario - Nueva Factura");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(900);
             stage.setMinHeight(650);
             stage.showAndWait();
@@ -135,7 +143,7 @@ public class DashboardController {
         } catch (IOException e) {
             mostrarAlerta(
                     "Error",
-                    "No se pudo abrir la Orden de Compra:\n"
+                    "No se pudo abrir la pantalla de Facturas:\n"
                             + e.getMessage());
         }
     }
@@ -152,6 +160,7 @@ public class DashboardController {
             stage.setTitle("Fersal Inventario - Historial de Compras");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(1050);
             stage.setMinHeight(680);
             stage.showAndWait();
@@ -250,6 +259,7 @@ public class DashboardController {
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("Fersal Inventario - Kardex");
             stage.setScene(new javafx.scene.Scene(root));
+            stage.sizeToScene();
             stage.setMinWidth(800);
             stage.setMinHeight(450);
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
@@ -278,6 +288,7 @@ public class DashboardController {
             stage.setTitle("Fersal Inventario - Nueva Orden de Trabajo");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(760);
             stage.setMinHeight(560);
             stage.showAndWait();
@@ -301,6 +312,7 @@ public class DashboardController {
             stage.setTitle("Fersal Inventario - Historial de Órdenes");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(950);
             stage.setMinHeight(650);
             stage.showAndWait();
@@ -325,6 +337,7 @@ public class DashboardController {
             stage.setTitle("Fersal Inventario - Trabajadores");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(760);
             stage.setMinHeight(500);
             stage.showAndWait();
@@ -349,6 +362,7 @@ public class DashboardController {
             stage.setTitle("Fersal Inventario - Proveedores");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.sizeToScene();
             stage.setMinWidth(820);
             stage.setMinHeight(520);
             stage.showAndWait();
@@ -563,6 +577,8 @@ public class DashboardController {
             stage.setScene(new javafx.scene.Scene(root));
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.setResizable(false);
+            stage.sizeToScene();
+            stage.setMinWidth(550);
             stage.showAndWait();
 
             refrescarTablas();

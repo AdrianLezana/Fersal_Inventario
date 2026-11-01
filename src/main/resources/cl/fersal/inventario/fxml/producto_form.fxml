@@ -6,7 +6,8 @@
 <?import java.lang.String?>
 
 <VBox spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="cl.fersal.inventario.controller.ProductoFormController" prefWidth="550.0">
+      fx:controller="cl.fersal.inventario.controller.ProductoFormController"
+      stylesheets="@styles.css" prefWidth="550.0">
     <padding>
         <Insets top="20.0" right="25.0" bottom="20.0" left="25.0"/>
     </padding>

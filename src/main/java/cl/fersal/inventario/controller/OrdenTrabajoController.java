@@ -42,6 +42,9 @@ public class OrdenTrabajoController {
 
     @FXML
     public void initialize() {
+        tablaMateriales.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY);
+
         colMaterial.setCellValueFactory(new PropertyValueFactory<>("nombreProducto"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadUtilizada"));
         colUnidad.setCellValueFactory(new PropertyValueFactory<>("unidadMedida"));

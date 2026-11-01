@@ -6,6 +6,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="cl.fersal.inventario.controller.ProveedoresController"
+            stylesheets="@styles.css"
             prefWidth="820.0" prefHeight="520.0">
     <center>
         <VBox spacing="10.0">

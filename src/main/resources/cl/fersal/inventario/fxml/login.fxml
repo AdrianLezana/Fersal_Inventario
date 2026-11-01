@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 
 <VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="@styles.css"
       fx:controller="cl.fersal.inventario.controller.LoginController"
       prefHeight="300.0" prefWidth="350.0">
 

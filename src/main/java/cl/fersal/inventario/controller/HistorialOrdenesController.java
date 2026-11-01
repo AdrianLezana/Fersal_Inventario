@@ -29,6 +29,9 @@ public class HistorialOrdenesController {
 
     @FXML
     public void initialize() {
+        tablaOrdenes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablaDetalles.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         colId.setCellValueFactory(
                 new PropertyValueFactory<>("id"));
         colFecha.setCellValueFactory(
