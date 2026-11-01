@@ -4,16 +4,22 @@ import cl.fersal.inventario.dao.OrdenTrabajoDAO;
 import cl.fersal.inventario.model.DetalleOrdenTrabajo;
 import cl.fersal.inventario.model.OrdenTrabajo;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.Locale;
 import java.util.List;
 
 public class HistorialOrdenesController {
+    @FXML private TextField txtBuscar;
     @FXML private TableView<OrdenTrabajo> tablaOrdenes;
     @FXML private TableColumn<OrdenTrabajo, Integer> colId;
     @FXML private TableColumn<OrdenTrabajo, String> colFecha;
@@ -26,6 +32,9 @@ public class HistorialOrdenesController {
     @FXML private TableColumn<DetalleOrdenTrabajo, Double> colCantidad;
 
     private final OrdenTrabajoDAO ordenTrabajoDAO = new OrdenTrabajoDAO();
+    private final ObservableList<OrdenTrabajo> ordenes =
+            FXCollections.observableArrayList();
+    private FilteredList<OrdenTrabajo> ordenesFiltradas;
 
     @FXML
     public void initialize() {
@@ -48,6 +57,16 @@ public class HistorialOrdenesController {
         colCantidad.setCellValueFactory(
                 new PropertyValueFactory<>("cantidadUtilizada"));
 
+        ordenesFiltradas = new FilteredList<>(ordenes, orden -> true);
+        SortedList<OrdenTrabajo> ordenesOrdenadas =
+                new SortedList<>(ordenesFiltradas);
+        ordenesOrdenadas.comparatorProperty().bind(
+                tablaOrdenes.comparatorProperty());
+        tablaOrdenes.setItems(ordenesOrdenadas);
+        txtBuscar.textProperty().addListener(
+                (observable, anterior, texto) ->
+                        filtrarOrdenes(texto));
+
         tablaOrdenes.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, anterior, seleccionada) ->
@@ -58,14 +77,28 @@ public class HistorialOrdenesController {
 
     public void cargarOrdenes() {
         try {
-            List<OrdenTrabajo> ordenes = ordenTrabajoDAO.obtenerTodas();
-            tablaOrdenes.setItems(
-                    FXCollections.observableArrayList(ordenes));
+            ordenes.setAll(ordenTrabajoDAO.obtenerTodas());
             tablaDetalles.setItems(
                     FXCollections.observableArrayList());
         } catch (IllegalStateException e) {
             mostrarError("No se pudo cargar el historial de órdenes.", e);
         }
+    }
+
+    private void filtrarOrdenes(String texto) {
+        String consulta = texto == null
+                ? ""
+                : texto.trim().toLowerCase(Locale.ROOT);
+        ordenesFiltradas.setPredicate(orden -> consulta.isEmpty()
+                || contiene(String.valueOf(orden.getId()), consulta)
+                || contiene(orden.getNombreTrabajador(), consulta)
+                || contiene(orden.getRutTrabajador(), consulta)
+                || contiene(orden.getDescripcionTrabajo(), consulta));
+    }
+
+    private boolean contiene(String valor, String consulta) {
+        return valor != null
+                && valor.toLowerCase(Locale.ROOT).contains(consulta);
     }
 
     private void cargarDetalles(OrdenTrabajo orden) {

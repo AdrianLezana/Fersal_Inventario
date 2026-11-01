@@ -11,6 +11,7 @@ public class OrdenTrabajo {
     private String tipoTrabajo;
     private String fechaTexto;
     private String nombreTrabajador;
+    private String rutTrabajador;
     private String descripcionTrabajo;
     private String estado;
 
@@ -79,6 +80,14 @@ public class OrdenTrabajo {
 
     public void setNombreTrabajador(String nombreTrabajador) {
         this.nombreTrabajador = nombreTrabajador;
+    }
+
+    public String getRutTrabajador() {
+        return rutTrabajador;
+    }
+
+    public void setRutTrabajador(String rutTrabajador) {
+        this.rutTrabajador = rutTrabajador;
     }
 
     public String getDescripcionTrabajo() {

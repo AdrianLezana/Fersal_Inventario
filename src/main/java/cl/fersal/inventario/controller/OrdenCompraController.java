@@ -20,9 +20,11 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -37,11 +39,17 @@ public class OrdenCompraController {
     @FXML private SearchableComboBox<Producto> cmbProductos;
     @FXML private TextField txtCantidad;
     @FXML private TextField txtPrecioUnitario;
+    @FXML private TextField txtDescuento;
+    @FXML private RadioButton rbPorcentaje;
+    @FXML private RadioButton rbMonto;
+    @FXML private ToggleGroup grupoDescuento;
     @FXML private TableView<DetalleOrdenCompra> tablaDetalles;
     @FXML private TableColumn<DetalleOrdenCompra, String> colProducto;
     @FXML private TableColumn<DetalleOrdenCompra, Double> colCantidad;
     @FXML private TableColumn<DetalleOrdenCompra, Double> colPrecio;
     @FXML private TableColumn<DetalleOrdenCompra, Double> colSubtotal;
+    @FXML private Label lblSubtotal;
+    @FXML private Label lblDescuento;
     @FXML private Label lblNeto;
     @FXML private Label lblIva;
     @FXML private Label lblTotal;
@@ -90,6 +98,10 @@ public class OrdenCompraController {
         colSubtotal.setCellValueFactory(
                 new PropertyValueFactory<>("subtotal"));
         tablaDetalles.setItems(detalles);
+        txtDescuento.textProperty().addListener(
+                (observable, anterior, nuevo) -> actualizarTotales());
+        grupoDescuento.selectedToggleProperty().addListener(
+                (observable, anterior, nuevo) -> actualizarTotales());
 
         cargarProveedores();
         cmbProductos.setItems(
@@ -192,6 +204,9 @@ public class OrdenCompraController {
             );
             Parent root = loader.load();
 
+            ProductoFormController controller = loader.getController();
+            controller.bloquearStockInicial();
+
             Stage stage = new Stage();
             stage.setTitle("Nuevo Producto");
             stage.setScene(new javafx.scene.Scene(root));
@@ -236,6 +251,10 @@ public class OrdenCompraController {
     @FXML
     private void confirmarCompra(ActionEvent event) {
         try {
+            if (detalles.isEmpty()) {
+                throw new IllegalArgumentException("Debe agregar al menos un producto a la factura antes de confirmar.");
+            }
+
             ButtonType si = new ButtonType(
                     "Sí", ButtonBar.ButtonData.OK_DONE);
             ButtonType no = new ButtonType(
@@ -252,13 +271,16 @@ public class OrdenCompraController {
                 return;
             }
 
-            double neto = calcularNeto();
+            double subtotal = calcularNeto();
+            double descuento = calcularDescuento(subtotal);
+            double neto = subtotal - descuento;
             double iva = redondear(neto * 0.19);
             double total = redondear(neto + iva);
 
             int ordenId = ordenCompraDAO.registrar(
                     cmbProveedor.getValue(),
                     txtNumeroDocumento.getText(),
+                    descuento,
                     neto,
                     iva,
                     total,
@@ -285,13 +307,33 @@ public class OrdenCompraController {
     }
 
     private void actualizarTotales() {
-        double neto = calcularNeto();
+        double subtotal = calcularNeto();
+        double descuento = calcularDescuento(subtotal);
+        double neto = subtotal - descuento;
         double iva = redondear(neto * 0.19);
         double total = redondear(neto + iva);
 
+        lblSubtotal.setText(formatear(subtotal));
+        lblDescuento.setText(formatear(descuento));
         lblNeto.setText(formatear(neto));
         lblIva.setText(formatear(iva));
         lblTotal.setText(formatear(total));
+    }
+
+    private double calcularDescuento(double subtotal) {
+        double valor;
+        try {
+            valor = parsearNumero(txtDescuento.getText());
+        } catch (NumberFormatException e) {
+            valor = 0.0;
+        }
+        if (!Double.isFinite(valor)) {
+            valor = 0.0;
+        }
+
+        return rbPorcentaje.isSelected()
+                ? subtotal * (valor / 100.0)
+                : valor;
     }
 
     private double calcularNeto() {

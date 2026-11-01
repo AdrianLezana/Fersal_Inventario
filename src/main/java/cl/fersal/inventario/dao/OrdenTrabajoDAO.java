@@ -4,6 +4,7 @@ import cl.fersal.inventario.config.ConexionDB;
 import cl.fersal.inventario.model.DetalleOrdenTrabajo;
 import cl.fersal.inventario.model.OrdenTrabajo;
 import cl.fersal.inventario.model.Trabajador;
+import cl.fersal.inventario.util.FechaHoraChile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,6 +19,7 @@ public class OrdenTrabajoDAO {
         String sql = """
                 SELECT o.id, o.fecha, o.trabajador_id,
                        t.nombre AS nombre_trabajador,
+                       t.rut AS rut_trabajador,
                        o.descripcion_trabajo,
                        COALESCE(o.estado, 'ACTIVA') AS estado
                 FROM ordenes_trabajo o
@@ -35,6 +37,7 @@ public class OrdenTrabajoDAO {
                 orden.setTrabajadorId(rs.getInt("trabajador_id"));
                 orden.setFechaTexto(rs.getString("fecha"));
                 orden.setNombreTrabajador(rs.getString("nombre_trabajador"));
+                orden.setRutTrabajador(rs.getString("rut_trabajador"));
                 orden.setDescripcionTrabajo(
                         rs.getString("descripcion_trabajo"));
                 orden.setEstado(rs.getString("estado"));
@@ -105,9 +108,9 @@ public class OrdenTrabajoDAO {
                 """;
         String sqlMovimiento = """
                 INSERT INTO movimientos_inventario
-                    (producto_id, cantidad_afectada, tipo_movimiento,
+                    (fecha, producto_id, cantidad_afectada, tipo_movimiento,
                      costo_unitario, responsable)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         Connection conn = ConexionDB.conectar();
@@ -151,14 +154,16 @@ public class OrdenTrabajoDAO {
                                                 + "producto ID " + productoId);
                             }
 
-                            insertarMovimiento.setInt(1, productoId);
-                            insertarMovimiento.setDouble(2, cantidad);
                             insertarMovimiento.setString(
-                                    3,
+                                    1, FechaHoraChile.ahora());
+                            insertarMovimiento.setInt(2, productoId);
+                            insertarMovimiento.setDouble(3, cantidad);
+                            insertarMovimiento.setString(
+                                    4,
                                     "Reverso por anulación OT #" + idOrden);
-                            insertarMovimiento.setDouble(4, costoUnitario);
+                            insertarMovimiento.setDouble(5, costoUnitario);
                             insertarMovimiento.setString(
-                                    5,
+                                    6,
                                     "ORDEN_TRABAJO_ID_" + idOrden);
                             insertarMovimiento.executeUpdate();
                         }
@@ -198,8 +203,9 @@ public class OrdenTrabajoDAO {
         validarEntrada(trabajador, descripcionTrabajo, detalles);
 
         String sqlOrden = """
-                INSERT INTO ordenes_trabajo (trabajador_id, descripcion_trabajo)
-                VALUES (?, ?)
+                INSERT INTO ordenes_trabajo
+                    (fecha, trabajador_id, descripcion_trabajo)
+                VALUES (?, ?, ?)
                 """;
         String sqlProducto = "SELECT nombre, costo_promedio FROM productos WHERE id = ?";
         String sqlDescontarStock = """
@@ -214,9 +220,9 @@ public class OrdenTrabajoDAO {
                 """;
         String sqlMovimiento = """
                 INSERT INTO movimientos_inventario
-                    (producto_id, cantidad_afectada, tipo_movimiento,
+                    (fecha, producto_id, cantidad_afectada, tipo_movimiento,
                      costo_unitario, responsable)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         Connection conn = ConexionDB.conectar();
@@ -229,8 +235,9 @@ public class OrdenTrabajoDAO {
             int ordenId;
             try (PreparedStatement pstmt = conn.prepareStatement(
                     sqlOrden, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setInt(1, trabajador.getId());
-                pstmt.setString(2, descripcionTrabajo.trim());
+                pstmt.setString(1, FechaHoraChile.ahora());
+                pstmt.setInt(2, trabajador.getId());
+                pstmt.setString(3, descripcionTrabajo.trim());
                 pstmt.executeUpdate();
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (!rs.next()) {
@@ -274,11 +281,12 @@ public class OrdenTrabajoDAO {
                 }
 
                 try (PreparedStatement pstmt = conn.prepareStatement(sqlMovimiento)) {
-                    pstmt.setInt(1, detalle.getProductoId());
-                    pstmt.setDouble(2, -detalle.getCantidadUtilizada());
-                    pstmt.setString(3, concepto);
-                    pstmt.setDouble(4, costoUnitario);
-                    pstmt.setString(5, responsable);
+                    pstmt.setString(1, FechaHoraChile.ahora());
+                    pstmt.setInt(2, detalle.getProductoId());
+                    pstmt.setDouble(3, -detalle.getCantidadUtilizada());
+                    pstmt.setString(4, concepto);
+                    pstmt.setDouble(5, costoUnitario);
+                    pstmt.setString(6, responsable);
                     pstmt.executeUpdate();
                 }
             }

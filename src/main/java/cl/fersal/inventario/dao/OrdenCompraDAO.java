@@ -4,6 +4,7 @@ import cl.fersal.inventario.config.ConexionDB;
 import cl.fersal.inventario.model.DetalleOrdenCompra;
 import cl.fersal.inventario.model.OrdenCompra;
 import cl.fersal.inventario.model.Proveedor;
+import cl.fersal.inventario.util.FechaHoraChile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,7 +19,7 @@ public class OrdenCompraDAO {
     public List<OrdenCompra> obtenerOrdenes() {
         String sql = """
                 SELECT o.id, o.fecha, o.proveedor_id,
-                       p.nombre AS nombre_proveedor,
+                       p.nombre AS nombre_proveedor, p.rut AS rut_proveedor,
                        o.numero_documento, o.neto, o.iva, o.total,
                        COALESCE(o.estado, 'ACTIVA') AS estado
                 FROM ordenes_compra o
@@ -37,6 +38,7 @@ public class OrdenCompraDAO {
                 orden.setFechaTexto(rs.getString("fecha"));
                 orden.setNombreProveedor(
                         rs.getString("nombre_proveedor"));
+                orden.setRutProveedor(rs.getString("rut_proveedor"));
                 orden.setNumeroDocumento(
                         rs.getString("numero_documento"));
                 orden.setNeto(rs.getDouble("neto"));
@@ -108,9 +110,9 @@ public class OrdenCompraDAO {
                 """;
         String sqlMovimiento = """
                 INSERT INTO movimientos_inventario
-                    (producto_id, cantidad_afectada, tipo_movimiento,
+                    (fecha, producto_id, cantidad_afectada, tipo_movimiento,
                      costo_unitario, responsable)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         Connection conn = ConexionDB.conectar();
@@ -159,14 +161,16 @@ public class OrdenCompraDAO {
                                                 + " es insuficiente.");
                             }
 
-                            insertarMovimiento.setInt(1, productoId);
-                            insertarMovimiento.setDouble(2, -cantidad);
                             insertarMovimiento.setString(
-                                    3,
+                                    1, FechaHoraChile.ahora());
+                            insertarMovimiento.setInt(2, productoId);
+                            insertarMovimiento.setDouble(3, -cantidad);
+                            insertarMovimiento.setString(
+                                    4,
                                     "Reverso por anulación OC #" + idOrden);
-                            insertarMovimiento.setDouble(4, precioUnitario);
+                            insertarMovimiento.setDouble(5, precioUnitario);
                             insertarMovimiento.setString(
-                                    5,
+                                    6,
                                     "ORDEN_COMPRA_ID_" + idOrden);
                             insertarMovimiento.executeUpdate();
                         }
@@ -205,6 +209,7 @@ public class OrdenCompraDAO {
     public int registrar(
             Proveedor proveedor,
             String numeroDocumento,
+            double descuento,
             double neto,
             double iva,
             double total,
@@ -212,6 +217,7 @@ public class OrdenCompraDAO {
         validarEntrada(
                 proveedor,
                 numeroDocumento,
+                descuento,
                 neto,
                 iva,
                 total,
@@ -220,8 +226,9 @@ public class OrdenCompraDAO {
 
         String sqlOrden = """
                 INSERT INTO ordenes_compra
-                    (proveedor_id, numero_documento, neto, iva, total)
-                VALUES (?, ?, ?, ?, ?)
+                    (fecha, proveedor_id, numero_documento, descuento,
+                     neto, iva, total)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
         String sqlProducto = """
                 SELECT nombre, stock_actual
@@ -240,9 +247,9 @@ public class OrdenCompraDAO {
                 """;
         String sqlMovimiento = """
                 INSERT INTO movimientos_inventario
-                    (producto_id, cantidad_afectada, tipo_movimiento,
+                    (fecha, producto_id, cantidad_afectada, tipo_movimiento,
                      costo_unitario, responsable)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         Connection conn = ConexionDB.conectar();
@@ -258,11 +265,13 @@ public class OrdenCompraDAO {
             try (PreparedStatement pstmt = conn.prepareStatement(
                     sqlOrden,
                     Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setInt(1, proveedor.getId());
-                pstmt.setString(2, numeroDocumento.trim());
-                pstmt.setDouble(3, neto);
-                pstmt.setDouble(4, iva);
-                pstmt.setDouble(5, total);
+                pstmt.setString(1, FechaHoraChile.ahora());
+                pstmt.setInt(2, proveedor.getId());
+                pstmt.setString(3, numeroDocumento.trim());
+                pstmt.setDouble(4, descuento);
+                pstmt.setDouble(5, neto);
+                pstmt.setDouble(6, iva);
+                pstmt.setDouble(7, total);
                 pstmt.executeUpdate();
 
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -323,11 +332,12 @@ public class OrdenCompraDAO {
 
                 try (PreparedStatement pstmt = conn.prepareStatement(
                         sqlMovimiento)) {
-                    pstmt.setInt(1, detalle.getProductoId());
-                    pstmt.setDouble(2, cantidadIngresada);
-                    pstmt.setString(3, "Ingreso por Compra");
-                    pstmt.setDouble(4, precioUnitario);
-                    pstmt.setString(5, responsable);
+                    pstmt.setString(1, FechaHoraChile.ahora());
+                    pstmt.setInt(2, detalle.getProductoId());
+                    pstmt.setDouble(3, cantidadIngresada);
+                    pstmt.setString(4, "Ingreso por Compra");
+                    pstmt.setDouble(5, precioUnitario);
+                    pstmt.setString(6, responsable);
                     pstmt.executeUpdate();
                 }
             }
@@ -352,6 +362,7 @@ public class OrdenCompraDAO {
     private void validarEntrada(
             Proveedor proveedor,
             String numeroDocumento,
+            double descuento,
             double neto,
             double iva,
             double total,
@@ -364,9 +375,11 @@ public class OrdenCompraDAO {
             throw new IllegalArgumentException(
                     "Debe indicar el número de documento.");
         }
-        if (!Double.isFinite(neto)
+        if (!Double.isFinite(descuento)
+                || !Double.isFinite(neto)
                 || !Double.isFinite(iva)
                 || !Double.isFinite(total)
+                || descuento < 0.0
                 || neto < 0.0
                 || iva < 0.0
                 || total < 0.0) {

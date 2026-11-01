@@ -144,6 +144,7 @@ public class ConexionDB {
                 fecha TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 proveedor_id INTEGER NOT NULL,
                 numero_documento TEXT NOT NULL,
+                descuento REAL DEFAULT 0.0,
                 neto REAL NOT NULL CHECK (neto >= 0),
                 iva REAL NOT NULL CHECK (iva >= 0),
                 total REAL NOT NULL CHECK (total >= 0),
@@ -184,6 +185,7 @@ public class ConexionDB {
             asegurarColumnaEstadoProducto(conn);
             asegurarColumnaEstadoOrdenTrabajo(conn);
             asegurarColumnaEstadoOrdenCompra(conn);
+            asegurarColumnaDescuentoOrdenCompra(conn);
             asegurarColumnasProveedor(conn);
             System.out.println("Esquema de base de datos verificado/inicializado correctamente.");
 
@@ -266,6 +268,22 @@ public class ConexionDB {
                                 + "ADD COLUMN estado TEXT "
                                 + "NOT NULL DEFAULT 'ACTIVA'"
                 );
+            }
+        }
+    }
+
+    private static void asegurarColumnaDescuentoOrdenCompra(Connection conn)
+            throws SQLException {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(
+                    "ALTER TABLE ordenes_compra "
+                            + "ADD COLUMN descuento REAL DEFAULT 0.0"
+            );
+        } catch (SQLException e) {
+            if (e.getMessage() == null
+                    || !e.getMessage().toLowerCase()
+                    .contains("duplicate column name")) {
+                throw e;
             }
         }
     }
