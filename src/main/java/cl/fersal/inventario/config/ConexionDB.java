@@ -130,9 +130,12 @@ public class ConexionDB {
             CREATE TABLE IF NOT EXISTS proveedores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 rut TEXT NOT NULL UNIQUE,
-                nombre TEXT NOT NULL,
+                razon_social TEXT NOT NULL,
+                giro TEXT,
                 telefono TEXT,
-                email TEXT
+                email TEXT,
+                direccion TEXT,
+                nombre TEXT NOT NULL
             );
 
             -- 9. Cabecera de las órdenes de compra
@@ -181,6 +184,7 @@ public class ConexionDB {
             asegurarColumnaEstadoProducto(conn);
             asegurarColumnaEstadoOrdenTrabajo(conn);
             asegurarColumnaEstadoOrdenCompra(conn);
+            asegurarColumnasProveedor(conn);
             System.out.println("Esquema de base de datos verificado/inicializado correctamente.");
 
         } catch (SQLException e) {
@@ -262,6 +266,47 @@ public class ConexionDB {
                                 + "ADD COLUMN estado TEXT "
                                 + "NOT NULL DEFAULT 'ACTIVA'"
                 );
+            }
+        }
+    }
+
+    private static void asegurarColumnasProveedor(Connection conn)
+            throws SQLException {
+        asegurarColumnaProveedor(conn, "razon_social", "TEXT");
+        asegurarColumnaProveedor(conn, "giro", "TEXT");
+        asegurarColumnaProveedor(conn, "direccion", "TEXT");
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(
+                    "UPDATE proveedores "
+                            + "SET razon_social = nombre "
+                            + "WHERE razon_social IS NULL "
+                            + "OR TRIM(razon_social) = ''"
+            );
+        }
+    }
+
+    private static void asegurarColumnaProveedor(
+            Connection conn,
+            String nombreColumna,
+            String tipoColumna) throws SQLException {
+        boolean existe = false;
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(
+                     "PRAGMA table_info(proveedores)")) {
+            while (rs.next()) {
+                if (nombreColumna.equalsIgnoreCase(rs.getString("name"))) {
+                    existe = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existe) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                        "ALTER TABLE proveedores ADD COLUMN "
+                                + nombreColumna + " " + tipoColumna);
             }
         }
     }

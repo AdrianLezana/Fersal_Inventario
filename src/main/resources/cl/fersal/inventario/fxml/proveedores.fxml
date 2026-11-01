@@ -7,59 +7,63 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="cl.fersal.inventario.controller.ProveedoresController"
             stylesheets="@styles.css"
-            prefWidth="820.0" prefHeight="520.0">
+            prefWidth="1180.0" prefHeight="650.0">
+    <top>
+        <Label text="Gestión de proveedores"
+               style="-fx-font-size: 20px; -fx-font-weight: bold;">
+            <BorderPane.margin>
+                <Insets top="18.0" right="18.0" bottom="12.0" left="18.0"/>
+            </BorderPane.margin>
+        </Label>
+    </top>
     <center>
-        <VBox spacing="10.0">
-            <padding>
-                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
-            </padding>
-            <Label text="Proveedores registrados"
-                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <TableView fx:id="tablaProveedores" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="colRut" text="RUT" prefWidth="150.0"/>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="250.0"/>
-                    <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="140.0"/>
-                    <TableColumn fx:id="colEmail" text="Email" prefWidth="220.0"/>
-                </columns>
-            </TableView>
-        </VBox>
+        <TableView fx:id="tablaProveedores">
+            <columns>
+                <TableColumn fx:id="colRut" text="RUT" prefWidth="115.0"/>
+                <TableColumn fx:id="colRazonSocial"
+                             text="Razón social" prefWidth="190.0"/>
+                <TableColumn fx:id="colGiro" text="Giro" prefWidth="140.0"/>
+                <TableColumn fx:id="colTelefono"
+                             text="Teléfono" prefWidth="120.0"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="180.0"/>
+                <TableColumn fx:id="colDireccion"
+                             text="Dirección" prefWidth="190.0"/>
+            </columns>
+            <BorderPane.margin>
+                <Insets top="4.0" right="12.0" bottom="18.0" left="18.0"/>
+            </BorderPane.margin>
+        </TableView>
     </center>
-    <bottom>
-        <VBox spacing="10.0">
+    <right>
+        <VBox spacing="10.0" prefWidth="330.0">
             <padding>
-                <Insets top="0.0" right="20.0" bottom="20.0" left="20.0"/>
+                <Insets top="10.0" right="18.0" bottom="18.0" left="12.0"/>
             </padding>
-            <Label text="Nuevo proveedor"
-                   style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
-            <GridPane hgap="10.0" vgap="8.0">
-                <columnConstraints>
-                    <ColumnConstraints minWidth="75.0"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                    <ColumnConstraints minWidth="75.0"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                </columnConstraints>
-                <Label text="RUT:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtRut" promptText="12.345.678-9"
-                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                <TextField fx:id="txtNombre" promptText="Razón social"
-                           GridPane.rowIndex="0" GridPane.columnIndex="3"/>
-                <Label text="Teléfono:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtTelefono" promptText="+56 9..."
-                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                <TextField fx:id="txtEmail" promptText="contacto@empresa.cl"
-                           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-            </GridPane>
-            <Label fx:id="lblMensaje" textFill="RED" wrapText="true"/>
-            <HBox spacing="10.0" alignment="CENTER_RIGHT">
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="Cerrar" onAction="#cerrarVentana"/>
-                <Button text="Agregar" onAction="#agregarProveedor"
-                        defaultButton="true"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
-            </HBox>
+            <Label text="Datos del proveedor"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label text="RUT"/>
+            <TextField fx:id="txtRut" promptText="12345678-9"/>
+            <Label text="Razón social"/>
+            <TextField fx:id="txtRazonSocial" promptText="Empresa proveedora"/>
+            <Label text="Giro"/>
+            <TextField fx:id="txtGiro" promptText="Actividad comercial"/>
+            <Label text="Teléfono"/>
+            <TextField fx:id="txtTelefono" promptText="+56912345678"/>
+            <Label text="Email"/>
+            <TextField fx:id="txtEmail" promptText="contacto@empresa.cl"/>
+            <Label text="Dirección"/>
+            <TextField fx:id="txtDireccion" promptText="Dirección comercial"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Guardar" onAction="#guardar" maxWidth="Infinity"
+                    defaultButton="true"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+            <Button text="Editar seleccionado" onAction="#editar"
+                    maxWidth="Infinity"/>
+            <Button text="Eliminar seleccionado" onAction="#eliminar"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+            <Button text="Limpiar" onAction="#limpiar" maxWidth="Infinity"/>
+            <Button text="Cerrar" onAction="#cerrarVentana" maxWidth="Infinity"/>
         </VBox>
-    </bottom>
+    </right>
 </BorderPane>
